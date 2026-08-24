@@ -4,7 +4,7 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  base: './', // Относительные пути для работы на GitHub Pages и любом хостинге
+  base: '/studio-os/', // Базовый путь для GitHub Pages https://kaylas000.github.io/studio-os/
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
