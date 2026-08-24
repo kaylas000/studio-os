@@ -60,6 +60,21 @@ export function App() {
     });
   };
 
+  const handleOpenDownload = () => {
+    soundEngine.playClick(500);
+    setIsDownloadOpen(true);
+  };
+
+  const handleOpenOrder = () => {
+    soundEngine.playClick(600);
+    setIsOrderOpen(true);
+  };
+
+  const handleOpenVault = () => {
+    soundEngine.playClick(520);
+    setIsVaultOpen(true);
+  };
+
   return (
     <div className="studio-app-root">
       {/* 1. Fullscreen Cinema WebGL Shaders & 3D Core Layer */}
@@ -81,9 +96,9 @@ export function App() {
       <FloatingNav
         currentArchetype={currentArchetype}
         onSelectArchetype={handleSelectArchetype}
-        onOpenDownload={() => setIsDownloadOpen(true)}
-        onOpenOrder={() => setIsOrderOpen(true)}
-        onOpenVault={() => setIsVaultOpen(true)}
+        onOpenDownload={handleOpenDownload}
+        onOpenOrder={handleOpenOrder}
+        onOpenVault={handleOpenVault}
         onToggleSpacingOverlay={handleToggleSpacing}
         isSpacingActive={isSpacingActive}
       />
@@ -93,42 +108,45 @@ export function App() {
         {/* Pinned Scrollytelling Acts */}
         <ScrollytellingAct
           scrollProgress={scrollProgress}
-          onOpenDownload={() => setIsDownloadOpen(true)}
-          onOpenOrder={() => setIsOrderOpen(true)}
-          onOpenVault={() => setIsVaultOpen(true)}
+          onOpenDownload={handleOpenDownload}
+          onOpenOrder={handleOpenOrder}
+          onOpenVault={handleOpenVault}
           onSelectArchetype={handleSelectArchetype}
           currentArchetype={currentArchetype}
         />
 
         {/* Deep Interactive Working Labs for All Systems */}
         <div className="interactive-labs-wrap">
-          <AntiSlopScannerSection onDownload={() => setIsDownloadOpen(true)} />
+          <AntiSlopScannerSection 
+            onDownload={handleOpenDownload}
+            onOpenOrder={handleOpenOrder}
+          />
           <SpacingRadarSection
             isOverlayActive={isSpacingActive}
             onToggleOverlay={handleToggleSpacing}
-            onDownload={() => setIsDownloadOpen(true)}
+            onDownload={handleOpenDownload}
           />
-          <MobileLabSection onDownload={() => setIsDownloadOpen(true)} />
-          <SEOCrawlerSection onDownload={() => setIsDownloadOpen(true)} />
-          <TextEngineeringSection onDownload={() => setIsDownloadOpen(true)} />
-          <ZeroBugMatrixSection onDownload={() => setIsDownloadOpen(true)} />
+          <MobileLabSection onDownload={handleOpenDownload} />
+          <SEOCrawlerSection onDownload={handleOpenDownload} />
+          <TextEngineeringSection onDownload={handleOpenDownload} />
+          <ZeroBugMatrixSection onDownload={handleOpenDownload} />
         </div>
       </main>
 
       {/* 5. Footer */}
       <Footer
-        onOpenDownload={() => setIsDownloadOpen(true)}
-        onOpenOrder={() => setIsOrderOpen(true)}
-        onOpenVault={() => setIsVaultOpen(true)}
+        onOpenDownload={handleOpenDownload}
+        onOpenOrder={handleOpenOrder}
+        onOpenVault={handleOpenVault}
       />
 
       {/* 6. Mobile Thumb-Zone Navigation Bar */}
       <MobileThumbBar
         currentArchetype={currentArchetype}
         onSelectArchetype={handleSelectArchetype}
-        onOpenDownload={() => setIsDownloadOpen(true)}
-        onOpenOrder={() => setIsOrderOpen(true)}
-        onOpenVault={() => setIsVaultOpen(true)}
+        onOpenDownload={handleOpenDownload}
+        onOpenOrder={handleOpenOrder}
+        onOpenVault={handleOpenVault}
         onReplayIntro={() => setIsIntroForced(true)}
       />
 
