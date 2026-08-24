@@ -1,0 +1,35 @@
+{
+  "name": "studio-os",
+  "version": "2.0.0",
+  "description": "Meta-system, Living Component Library, and Interactive Showcase Portal for Next-Gen Web Studio",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "studio": "./core-engine/bin/studio.js"
+  },
+  "workspaces": [
+    "showcase-site",
+    "projects/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=showcase-site",
+    "build": "npm run build --workspace=showcase-site",
+    "preview": "npm run preview --workspace=showcase-site",
+    "studio": "node core-engine/bin/studio.js",
+    "studio:new": "node core-engine/bin/studio.js new",
+    "studio:harvest": "node core-engine/bin/studio.js harvest",
+    "studio:audit": "node core-engine/bin/studio.js audit",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "web-studio",
+    "design-system",
+    "anti-slop",
+    "hollywood-intros",
+    "seo-by-design",
+    "zero-bug",
+    "fluid-responsive"
+  ],
+  "author": "STUDIO OS Core Team",
+  "license": "MIT"
+}

@@ -1,0 +1,18 @@
+{
+  "name": "@studio-projects/client-alpha",
+  "version": "1.0.0",
+  "private": true,
+  "archetype": "luxury-noir",
+  "standards": [
+    "01-animations",
+    "02-anti-slop",
+    "03-mobile",
+    "04-spacing",
+    "05-hollywood-intros",
+    "06-seo",
+    "07-archetypes",
+    "08-copywriting",
+    "09-quality"
+  ],
+  "created": "2026-08-24T15:58:46.707Z"
+}

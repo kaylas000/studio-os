@@ -1,0 +1,10 @@
+{
+  "name": "sample-hero",
+  "category": "components",
+  "harvestedAt": "2026-08-24T15:58:46.743Z",
+  "testedStandards": [
+    "Anti-Slop > 85",
+    "WCAG 2.2 AAA",
+    "60 FPS Certified"
+  ]
+}

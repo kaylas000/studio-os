@@ -1,0 +1,58 @@
+{
+  "studio_name": "STUDIO OS",
+  "version": "2.0.0",
+  "mandate": "Агент ОБЯЗАН разрабатывать проекты исключительно через архитектуру и библиотеку STUDIO OS. Ни один проект не создаётся с чистого листа без применения 9 производственных стандартов.",
+  "production_standards": [
+    {
+      "id": "SYS-01-ANIMATION",
+      "name": "Кинематографичные веб-анимации",
+      "rule": "Использовать Master Timeline + Lenis Smooth Scroll. Для тяжелых сцен применять Image Sequence scrubbing (метод Apple) и post-processing эффекты (bloom, vignette, chromatic aberration, grain)."
+    },
+    {
+      "id": "SYS-02-ANTI-SLOP",
+      "name": "Анти-слоп защита",
+      "rule": "Запрещены клише ('в современном мире', 'инновационный подход'), заезженные градиенты (#667eea, #764ba2) и дефолтный Inter/Poppins без модификации. Минимальный Originality Score = 75/100."
+    },
+    {
+      "id": "SYS-03-MOBILE-PERFECT",
+      "name": "Тотальная мобильная адаптация",
+      "rule": "Применять fluid-типографику clamp(), safe-area-inset переменные и touch target >= 44x44px. Горизонтальный скролл на ширинах 320-428px блокирует билд."
+    },
+    {
+      "id": "SYS-04-SPACING-CONTROL",
+      "name": "Контроль отступов и зазоров",
+      "rule": "Запрещен произвольный хардкод пикселей в отступах. Разрешены только токены из шкалы (2, 4, 8, 12, 16, 24, 32, 48, 64, 96px) или компоненты <Box> / <Stack>."
+    },
+    {
+      "id": "SYS-05-HOLLYWOOD-INTROS",
+      "name": "Голливудские 3D-заставки",
+      "rule": "Для премиальных проектов подключать 3D-интро (Universal Light, Marvel Particles, Cyber Glitch) с автодетектом мощности устройства и кнопкой Skip."
+    },
+    {
+      "id": "SYS-06-SEO-BY-DESIGN",
+      "name": "Сквозная SEO-инъекция",
+      "rule": "Каждая страница строго валидируется по Zod PageSEOContract (Title 30-65 симв, Description 70-160, OG Image 1200x630, JSON-LD Graph, ровно один h1)."
+    },
+    {
+      "id": "SYS-07-VARIABILITY",
+      "name": "Полиморфная вариативность дизайнов",
+      "rule": "Сайт должен поддерживать 5 архетипов (Luxury Noir, Neo-Brutalism, Cyber-Tech, Editorial Swiss, Clean Minimal) с автоматической проверкой контрастности APCA."
+    },
+    {
+      "id": "SYS-08-COPYWRITING",
+      "name": "Инженерный копирайтинг",
+      "rule": "Текст пишется по формулам (PAS/BAB), проходит проверку читаемости Flesch > 70 и имеет факт-плотность не менее 1 твёрдой цифры/метрики на 25 слов."
+    },
+    {
+      "id": "SYS-09-ZERO-BUG",
+      "name": "Zero-Bug валидация и тестирование",
+      "rule": "Запрещен Layout Thrashing в анимациях, обязательна очистка WebGL через dispose(), стабильный FPS >= 55 и изоляция ошибок через Error Boundaries."
+    }
+  ],
+  "agent_commands": {
+    "scaffold": "studio new <project-name>",
+    "harvest": "studio harvest <block-name>",
+    "audit": "studio audit",
+    "vault": "studio vault"
+  }
+}

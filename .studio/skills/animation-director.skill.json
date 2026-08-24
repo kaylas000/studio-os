@@ -1,0 +1,10 @@
+{
+  "name": "animation-director",
+  "description": "Проектирует длинные кинематографичные таймлайны и постобработку.",
+  "actions": [
+    "Настройка Lenis smooth scroll с инерцией 1.2s",
+    "Сборка Master Timeline в GSAP с overlap и gap сегментами",
+    "Подключение Three.js ShaderPass (UnrealBloom, FilmGrain, ColorGrading, Bokeh)",
+    "Оптимизация Image Sequence scrubbing через чанкинг и WebP"
+  ]
+}
