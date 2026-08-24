@@ -1,9 +1,10 @@
 // showcase-site/src/sections/07-SEOCrawlerSection.tsx
 import React, { useState } from 'react';
-import { Search, Code2, CheckCircle2, ShieldCheck, Download } from 'lucide-react';
+import { Search, Code2, CheckCircle2, ShieldCheck, Download, Layers } from 'lucide-react';
+import { soundEngine } from '../audio/WebAudioEngine';
 
 export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDownload }) => {
-  const [activeTab, setActiveTab] = useState<'meta' | 'jsonld' | 'rules'>('jsonld');
+  const [activeTab, setActiveTab] = useState<'jsonld' | 'meta' | 'rules'>('jsonld');
 
   const sampleJSONLD = {
     '@context': 'https://schema.org',
@@ -49,40 +50,40 @@ export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDown
         </p>
 
         <div className="seo-showcase-grid">
-          {/* Live Structured Data & Meta Inspector */}
+          {/* Structured Data & Meta Inspector */}
           <div className="seo-inspector-card">
-            <div className="seo-tabs">
+            <div className="seo-tabs-bar">
               <button 
-                className={`seo-tab ${activeTab === 'jsonld' ? 'active' : ''}`}
-                onClick={() => setActiveTab('jsonld')}
+                className={`seo-tab-btn ${activeTab === 'jsonld' ? 'active' : ''}`}
+                onClick={() => { soundEngine.playClick(450); setActiveTab('jsonld'); }}
               >
                 <Code2 size={14} />
-                <span>Schema.org JSON-LD Graph</span>
+                <span>JSON-LD Schema Graph</span>
               </button>
               <button 
-                className={`seo-tab ${activeTab === 'meta' ? 'active' : ''}`}
-                onClick={() => setActiveTab('meta')}
+                className={`seo-tab-btn ${activeTab === 'meta' ? 'active' : ''}`}
+                onClick={() => { soundEngine.playClick(480); setActiveTab('meta'); }}
               >
-                <span>Meta & OpenGraph Snippet</span>
+                <span>Google Snippet & Meta</span>
               </button>
               <button 
-                className={`seo-tab ${activeTab === 'rules' ? 'active' : ''}`}
-                onClick={() => setActiveTab('rules')}
+                className={`seo-tab-btn ${activeTab === 'rules' ? 'active' : ''}`}
+                onClick={() => { soundEngine.playClick(510); setActiveTab('rules'); }}
               >
-                <span>ESLint SEO AST Rules</span>
+                <span>ESLint AST Rules</span>
               </button>
             </div>
 
-            <div className="tab-content-area">
+            <div className="tab-render-box">
               {activeTab === 'jsonld' && (
-                <pre className="code-display">
+                <pre className="code-block-seo">
                   {JSON.stringify(sampleJSONLD, null, 2)}
                 </pre>
               )}
 
               {activeTab === 'meta' && (
-                <div className="meta-preview-wrap">
-                  <div className="google-snippet-preview">
+                <div className="meta-preview-card">
+                  <div className="google-serp-card">
                     <span className="g-url">https://studio-os.com › systems</span>
                     <h4 className="g-title">STUDIO OS — Мета-система и Живой Портал Веб-Студии</h4>
                     <p className="g-desc">
@@ -90,7 +91,7 @@ export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDown
                     </p>
                   </div>
 
-                  <div className="meta-stats-row">
+                  <div className="meta-stats-chips">
                     <span>Title: <strong>58 симв. (Оптимально 30-65)</strong></span>
                     <span>Description: <strong>146 симв. (Оптимально 70-160)</strong></span>
                     <span>H1 Count: <strong>Ровно 1 тег</strong></span>
@@ -99,15 +100,15 @@ export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDown
               )}
 
               {activeTab === 'rules' && (
-                <div className="rules-list">
-                  <div className="rule-item">
+                <div className="rules-checklist">
+                  <div className="rule-card">
                     <CheckCircle2 size={15} color="#00ff88" />
                     <div>
                       <strong>enforce-heading-hierarchy.js</strong>
                       <p>Запрещает больше одного `h1` и пропуски уровней (`h1` → `h3` запрещено)</p>
                     </div>
                   </div>
-                  <div className="rule-item">
+                  <div className="rule-card">
                     <CheckCircle2 size={15} color="#00ff88" />
                     <div>
                       <strong>require-image-seo-attrs.js</strong>
@@ -119,25 +120,25 @@ export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDown
             </div>
           </div>
 
-          {/* SEO Contract Summary Card */}
+          {/* Crawler Summary Card */}
           <div className="seo-summary-card">
             <h3>🤖 Автоматизация поискового краулинга</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '16px' }}>
               Встроенный Playwright SEOCrawler сканирует каждую страницу перед мержем в main.
             </p>
 
-            <div className="crawler-status-box">
-              <div className="status-metric">
-                <span className="val">100%</span>
-                <span className="lbl">Rich Snippets Pass</span>
+            <div className="crawler-kpi-grid">
+              <div className="kpi-box">
+                <span className="kpi-num">100%</span>
+                <span className="kpi-lbl">Rich Snippets</span>
               </div>
-              <div className="status-metric">
-                <span className="val">0.00</span>
-                <span className="lbl">CLS (Zero Shift)</span>
+              <div className="kpi-box">
+                <span className="kpi-num">0.00</span>
+                <span className="kpi-lbl">CLS Shift</span>
               </div>
-              <div className="status-metric">
-                <span className="val">0</span>
-                <span className="lbl">Broken Links</span>
+              <div className="kpi-box">
+                <span className="kpi-num">0</span>
+                <span className="kpi-lbl">Broken Links</span>
               </div>
             </div>
 
@@ -162,9 +163,9 @@ export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDown
           background: var(--bg-surface);
           border: var(--border-width) solid var(--border);
           border-radius: var(--radius-md);
-          padding: 24px;
+          padding: clamp(18px, 3vw, 28px);
         }
-        .seo-tabs {
+        .seo-tabs-bar {
           display: flex;
           gap: 8px;
           border-bottom: 1px solid var(--border);
@@ -172,7 +173,7 @@ export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDown
           margin-bottom: 16px;
           flex-wrap: wrap;
         }
-        .seo-tab {
+        .seo-tab-btn {
           display: flex;
           align-items: center;
           gap: 6px;
@@ -185,30 +186,30 @@ export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDown
           color: var(--text-secondary);
           cursor: pointer;
         }
-        .seo-tab.active {
+        .seo-tab-btn.active {
           border-color: var(--accent);
           color: var(--accent);
           background: var(--bg-card);
         }
-        .code-display {
+        .code-block-seo {
+          background: var(--bg-primary);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          padding: 14px;
+          font-family: var(--font-mono);
+          font-size: 0.72rem;
+          color: #00ff88;
+          max-height: 260px;
+          overflow-y: auto;
+        }
+        .meta-preview-card {
           background: var(--bg-primary);
           border: 1px solid var(--border);
           border-radius: var(--radius-sm);
           padding: 16px;
-          font-family: var(--font-mono);
-          font-size: 0.75rem;
-          color: #00ff88;
-          max-height: 280px;
-          overflow-y: auto;
         }
-        .meta-preview-wrap {
-          background: var(--bg-primary);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-sm);
-          padding: 18px;
-        }
-        .google-snippet-preview {
-          background: #fff;
+        .google-serp-card {
+          background: #ffffff;
           color: #202124;
           padding: 16px;
           border-radius: 8px;
@@ -216,22 +217,22 @@ export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDown
           font-family: Arial, sans-serif;
         }
         .g-url { font-size: 0.75rem; color: #202124; display: block; margin-bottom: 4px; }
-        .g-title { font-size: 1.1rem; color: #1a0dab; margin-bottom: 4px; font-weight: normal; }
-        .g-desc { font-size: 0.85rem; color: #4d5156; line-height: 1.4; }
-        .meta-stats-row {
+        .g-title { font-size: 1.05rem; color: #1a0dab; margin-bottom: 4px; font-weight: normal; }
+        .g-desc { font-size: 0.82rem; color: #4d5156; line-height: 1.4; }
+        .meta-stats-chips {
           display: flex;
           flex-wrap: wrap;
-          gap: 16px;
+          gap: 12px;
           font-family: var(--font-mono);
-          font-size: 0.75rem;
+          font-size: 0.72rem;
           color: var(--text-secondary);
         }
-        .rules-list {
+        .rules-checklist {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 10px;
         }
-        .rule-item {
+        .rule-card {
           display: flex;
           gap: 10px;
           background: var(--bg-primary);
@@ -239,8 +240,8 @@ export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDown
           border-radius: var(--radius-sm);
           font-size: 0.82rem;
         }
-        .rule-item p { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
-        .crawler-status-box {
+        .rule-card p { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
+        .crawler-kpi-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 10px;
@@ -249,9 +250,9 @@ export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDown
           border-radius: var(--radius-sm);
           border: 1px solid var(--border);
         }
-        .status-metric { text-align: center; }
-        .status-metric .val { display: block; font-family: var(--font-mono); font-size: 1.4rem; font-weight: bold; color: var(--accent); }
-        .status-metric .lbl { font-size: 0.7rem; color: var(--text-secondary); }
+        .kpi-box { text-align: center; }
+        .kpi-num { display: block; font-family: var(--font-mono); font-size: 1.35rem; font-weight: bold; color: var(--accent); }
+        .kpi-lbl { font-size: 0.68rem; color: var(--text-secondary); }
       `}</style>
     </section>
   );

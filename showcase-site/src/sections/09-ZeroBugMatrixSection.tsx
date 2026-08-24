@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Terminal, Cpu, Activity, Play, CheckCircle2, Download } from 'lucide-react';
 import { MemoryLeakDetector } from '@library/09-quality/MemoryLeakDetector';
+import { soundEngine } from '../audio/WebAudioEngine';
 
 export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onDownload }) => {
   const [isRunningTests, setIsRunningTests] = useState(false);
@@ -37,6 +38,7 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
   }, []);
 
   const runAllTests = () => {
+    soundEngine.playClick(600);
     setIsRunningTests(true);
     setTestLogs(['[RUNNER]: Инициализация Playwright & Vitest Matrix...']);
 
@@ -52,7 +54,10 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
     steps.forEach((step, idx) => {
       setTimeout(() => {
         setTestLogs(prev => [...prev, step]);
-        if (idx === steps.length - 1) setIsRunningTests(false);
+        if (idx === steps.length - 1) {
+          setIsRunningTests(false);
+          soundEngine.playCinematicImpact();
+        }
       }, (idx + 1) * 350);
     });
   };
@@ -71,7 +76,7 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
           а Playwright проверяет 5 архетипов в Chromium, WebKit и Firefox.
         </p>
 
-        <div className="zero-bug-grid">
+        <div className="zero-bug-layout-grid">
           {/* Terminal Logs Simulation */}
           <div className="test-terminal-card">
             <div className="terminal-top-bar">
@@ -80,7 +85,7 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
                 <span className="dot yellow" />
                 <span className="dot green" />
               </div>
-              <span className="terminal-title">studio-ci-runner — Quality Gate Execution</span>
+              <span className="terminal-title">studio-ci-runner — Quality Gate</span>
               <button 
                 className="btn-run-tests"
                 onClick={runAllTests}
@@ -91,7 +96,7 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
               </button>
             </div>
 
-            <div className="terminal-screen">
+            <div className="terminal-screen-box">
               {testLogs.map((log, i) => (
                 <div key={i} className={`log-line ${log.includes('PASS') || log.includes('🏆') ? 'pass' : ''}`}>
                   {log}
@@ -107,8 +112,8 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
               Живой мониторинг FPS и состояния кучи памяти прямо на этой странице.
             </p>
 
-            <div className="telemetry-stats">
-              <div className="tele-box">
+            <div className="telemetry-stats-row">
+              <div className="tele-kpi-card">
                 <Activity size={20} color="var(--accent)" />
                 <div>
                   <span className="t-val">{fps} FPS</span>
@@ -116,7 +121,7 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
                 </div>
               </div>
 
-              <div className="tele-box">
+              <div className="tele-kpi-card">
                 <Cpu size={20} color="var(--accent)" />
                 <div>
                   <span className="t-val">{memReport.usedJSHeapSizeMB} MB</span>
@@ -139,19 +144,19 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
       </div>
 
       <style>{`
-        .zero-bug-grid {
+        .zero-bug-layout-grid {
           display: grid;
           grid-template-columns: 1.3fr 1fr;
           gap: 24px;
         }
         @media (max-width: 960px) {
-          .zero-bug-grid { grid-template-columns: 1fr; }
+          .zero-bug-layout-grid { grid-template-columns: 1fr; }
         }
         .test-terminal-card, .telemetry-card {
           background: var(--bg-surface);
           border: var(--border-width) solid var(--border);
           border-radius: var(--radius-md);
-          padding: 24px;
+          padding: clamp(18px, 3vw, 28px);
         }
         .terminal-top-bar {
           display: flex;
@@ -180,7 +185,7 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 4px 10px;
+          padding: 6px 12px;
           background: var(--accent);
           color: #000;
           font-weight: bold;
@@ -188,13 +193,13 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
           border-radius: 4px;
           cursor: pointer;
         }
-        .terminal-screen {
-          background: #050608;
+        .terminal-screen-box {
+          background: #030406;
           border: 1px solid var(--border);
           border-radius: var(--radius-sm);
           padding: 16px;
           font-family: var(--font-mono);
-          font-size: 0.78rem;
+          font-size: 0.76rem;
           color: #d1d5db;
           min-height: 220px;
           max-height: 280px;
@@ -202,13 +207,13 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
           line-height: 1.6;
         }
         .log-line.pass { color: #00ff88; }
-        .telemetry-stats {
+        .telemetry-stats-row {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 12px;
           margin-bottom: 16px;
         }
-        .tele-box {
+        .tele-kpi-card {
           background: var(--bg-primary);
           border: 1px solid var(--border);
           border-radius: var(--radius-sm);

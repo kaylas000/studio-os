@@ -1,6 +1,7 @@
 // showcase-site/src/sections/05-SpacingRadarSection.tsx
 import React, { useState } from 'react';
-import { Eye, EyeOff, LayoutGrid, Ruler, CheckCircle2, Download } from 'lucide-react';
+import { Ruler, Eye, EyeOff, CheckCircle2, Download, Box, Layers } from 'lucide-react';
+import { soundEngine } from '../audio/WebAudioEngine';
 
 interface SpacingRadarProps {
   isOverlayActive: boolean;
@@ -33,7 +34,7 @@ export const SpacingRadarSection: React.FC<SpacingRadarProps> = ({
       <div className="container">
         <div className="section-tagline">
           <Ruler size={14} />
-          <span>Система 04: Система контроля отступов и зазоров</span>
+          <span>Система 04: Контроль отступов и зазоров (Spacing Control)</span>
         </div>
 
         <h2 className="section-title">АППАРАТНЫЙ КОНТРОЛЬ ГЕОМЕТРИИ И ОТСТУПОВ</h2>
@@ -42,31 +43,33 @@ export const SpacingRadarSection: React.FC<SpacingRadarProps> = ({
           примитивы `&lt;Box&gt;` и `&lt;Stack&gt;`, а также Stylelint-правила, блокирующие произвольный CSS.
         </p>
 
-        <div className="spacing-grid-layout">
+        <div className="spacing-layout-grid">
           {/* Live Overlay Toggle & Box Model Viewer */}
           <div className="spacing-card">
-            <div className="spacing-card__head">
-              <h3>📡 Радар отступов (Live Spacing Overlay)</h3>
+            <div className="spacing-card-head">
+              <div>
+                <h3>📡 Радар отступов (Live Spacing Overlay)</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.78rem' }}>Горячая клавиша: Ctrl + Shift + S</p>
+              </div>
               <button 
-                className={`btn-studio-primary ${isOverlayActive ? 'active-pulse' : ''}`}
-                onClick={onToggleOverlay}
+                className={`btn-studio-primary ${isOverlayActive ? 'active-radar' : ''}`}
+                onClick={() => {
+                  soundEngine.playClick(600);
+                  onToggleOverlay();
+                }}
               >
                 {isOverlayActive ? <EyeOff size={16} /> : <Eye size={16} />}
-                <span>{isOverlayActive ? 'Отключить радар' : 'Включить подсветку всех отступов'}</span>
+                <span>{isOverlayActive ? 'Отключить радар' : 'Включить радар отступов'}</span>
               </button>
             </div>
 
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '16px' }}>
-              При активации каждый отступ на странице подсвечивается цветной маркерной сеткой со значением в пикселях.
-            </p>
-
-            {/* Simulated Component with Spacing Markers */}
-            <div className="box-model-demo">
-              <div className="margin-indicator">
-                <span>MARGIN: 24px (var(--spacing-6))</span>
-                <div className="padding-indicator">
-                  <span>PADDING: 20px (var(--spacing-5))</span>
-                  <div className="content-indicator">
+            {/* Interactive Box Model Visualization */}
+            <div className="box-model-container">
+              <div className="margin-layer">
+                <span className="layer-lbl">MARGIN: 24px (var(--spacing-6))</span>
+                <div className="padding-layer">
+                  <span className="layer-lbl">PADDING: 20px (var(--spacing-5))</span>
+                  <div className="content-layer">
                     <strong>Внутренний контент компонента</strong>
                     <p>GAP: 12px между дочерними элементами</p>
                   </div>
@@ -74,16 +77,19 @@ export const SpacingRadarSection: React.FC<SpacingRadarProps> = ({
               </div>
             </div>
 
-            <div className="status-note">
+            <div className="status-badge-row">
               <CheckCircle2 size={15} color="#00ff88" />
-              <span>Stylelint AST Enforcer: 0 нарушений геометрии в кодовой базе</span>
+              <span>Stylelint AST Enforcer: 0 произвольных пикселей в кодовой базе</span>
             </div>
           </div>
 
           {/* Token Scale Matrix */}
           <div className="spacing-card">
-            <div className="spacing-card__head">
-              <h3>📐 Шкала дизайн-токенов (Design Tokens)</h3>
+            <div className="spacing-card-head">
+              <div>
+                <h3>📐 Модульная шкала дизайн-токенов</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.78rem' }}>Шкала на базе 8px модульного шага</p>
+              </div>
               <span className="badge-pill">8px Modular</span>
             </div>
 
@@ -91,7 +97,7 @@ export const SpacingRadarSection: React.FC<SpacingRadarProps> = ({
               <table className="tokens-table">
                 <thead>
                   <tr>
-                    <th>CSS Токен</th>
+                    <th>Токен</th>
                     <th>Значение</th>
                     <th>Назначение</th>
                   </tr>
@@ -100,8 +106,11 @@ export const SpacingRadarSection: React.FC<SpacingRadarProps> = ({
                   {TOKENS_SCALE.map((token, i) => (
                     <tr 
                       key={i} 
-                      className={selectedToken.includes(token.val) ? 'selected-row' : ''}
-                      onClick={() => setSelectedToken(`${token.val} (${token.name})`)}
+                      className={selectedToken.includes(token.val) ? 'selected' : ''}
+                      onClick={() => {
+                        soundEngine.playClick(300 + i * 20);
+                        setSelectedToken(`${token.val} (${token.name})`);
+                      }}
                     >
                       <td><code>{token.name}</code></td>
                       <td><strong>{token.val}</strong></td>
@@ -121,62 +130,62 @@ export const SpacingRadarSection: React.FC<SpacingRadarProps> = ({
       </div>
 
       <style>{`
-        .spacing-grid-layout {
+        .spacing-layout-grid {
           display: grid;
-          grid-template-columns: 1.2fr 1fr;
+          grid-template-columns: 1.25fr 1fr;
           gap: 24px;
         }
-        @media (max-width: 900px) {
-          .spacing-grid-layout { grid-template-columns: 1fr; }
+        @media (max-width: 960px) {
+          .spacing-layout-grid { grid-template-columns: 1fr; }
         }
         .spacing-card {
           background: var(--bg-surface);
           border: var(--border-width) solid var(--border);
           border-radius: var(--radius-md);
-          padding: 24px;
+          padding: clamp(18px, 3vw, 28px);
           display: flex;
           flex-direction: column;
           justify-content: space-between;
+          gap: 16px;
         }
-        .spacing-card__head {
+        .spacing-card-head {
           display: flex;
-          align-items: center;
           justify-content: space-between;
-          margin-bottom: 14px;
+          align-items: center;
+          gap: 12px;
           flex-wrap: wrap;
-          gap: 10px;
         }
-        .box-model-demo {
+        .box-model-container {
           background: var(--bg-primary);
           border: var(--border-width) solid var(--border);
           border-radius: var(--radius-sm);
-          padding: 20px;
-          margin-bottom: 16px;
+          padding: 16px;
         }
-        .margin-indicator {
-          background: rgba(255, 100, 0, 0.15);
+        .margin-layer {
+          background: rgba(255, 100, 0, 0.12);
           border: 1px dashed rgba(255, 100, 0, 0.6);
-          padding: 18px;
-          font-family: var(--font-mono);
-          font-size: 0.72rem;
-          color: #ffaa55;
+          padding: 16px;
           text-align: center;
         }
-        .padding-indicator {
-          background: rgba(0, 200, 100, 0.15);
+        .padding-layer {
+          background: rgba(0, 200, 100, 0.12);
           border: 1px dashed rgba(0, 200, 100, 0.6);
           padding: 16px;
           margin-top: 8px;
-          color: #00ff88;
         }
-        .content-indicator {
+        .content-layer {
           background: var(--bg-card);
           border: 1px solid var(--border);
           padding: 14px;
           margin-top: 8px;
           color: var(--text-primary);
         }
-        .status-note {
+        .layer-lbl {
+          font-family: var(--font-mono);
+          font-size: 0.72rem;
+          color: var(--accent);
+        }
+        .status-badge-row {
           display: flex;
           align-items: center;
           gap: 8px;
@@ -184,7 +193,7 @@ export const SpacingRadarSection: React.FC<SpacingRadarProps> = ({
           color: var(--text-secondary);
         }
         .tokens-table-wrap {
-          max-height: 280px;
+          max-height: 270px;
           overflow-y: auto;
         }
         .tokens-table {
@@ -196,20 +205,21 @@ export const SpacingRadarSection: React.FC<SpacingRadarProps> = ({
         .tokens-table th, .tokens-table td {
           padding: 8px 10px;
           text-align: left;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         .tokens-table th {
           color: var(--text-secondary);
-          font-size: 0.72rem;
+          font-size: 0.7rem;
           text-transform: uppercase;
         }
         .tokens-table tr {
           cursor: pointer;
+          transition: background 0.15s;
         }
-        .tokens-table tr:hover, .selected-row {
-          background: rgba(255,255,255,0.05);
+        .tokens-table tr:hover, .tokens-table tr.selected {
+          background: rgba(255, 255, 255, 0.05);
         }
-        .selected-row td {
+        .tokens-table tr.selected td {
           color: var(--accent);
         }
       `}</style>

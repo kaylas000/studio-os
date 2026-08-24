@@ -1,6 +1,7 @@
 // showcase-site/src/components/FloatingNav.tsx
 import React, { useState, useEffect } from 'react';
-import { Download, Sparkles, FolderDown, Cpu, Layers, Eye } from 'lucide-react';
+import { Download, Sparkles, FolderDown, Volume2, VolumeX, Eye, Terminal } from 'lucide-react';
+import { soundEngine } from '../audio/WebAudioEngine';
 
 interface FloatingNavProps {
   currentArchetype: string;
@@ -22,70 +23,81 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
   isSpacingActive
 }) => {
   const [scrolled, setScrolled] = useState(false);
+  const [isMuted, setIsMuted] = useState(soundEngine.getIsMuted());
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
+      setScrolled(window.scrollY > 30);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleToggleSound = () => {
+    const muted = soundEngine.toggleMute();
+    setIsMuted(muted);
+    if (!muted) soundEngine.playClick(500);
+  };
 
   return (
     <header className={`floating-nav ${scrolled ? 'nav-scrolled' : ''}`}>
       <div className="nav-container">
-        {/* Logo */}
-        <div className="nav-brand">
-          <div className="brand-badge">STUDIO OS</div>
-          <span className="brand-version">v2.0</span>
-        </div>
+        {/* Brand Mark */}
+        <a href="#hero-intro" className="nav-brand" onClick={() => soundEngine.playClick(600)}>
+          <span className="brand-logo-text">STUDIO OS</span>
+          <span className="brand-badge-v">v2.0</span>
+        </a>
 
-        {/* Quick System Links */}
-        <nav className="nav-links">
-          <a href="#hero-intro">01. 3D Интро</a>
-          <a href="#animations">02. Анимации</a>
-          <a href="#anti-slop">03. Анти-слоп</a>
-          <a href="#archetypes">04. Архетипы</a>
-          <a href="#mobile">06. Мобильность</a>
-          <a href="#seo">07. SEO</a>
-          <a href="#vault-section">08. Хранилище</a>
-        </nav>
+        {/* Center Live Telemetry (Desktop Only) */}
+        <div className="nav-telemetry">
+          <span className="tele-pulse" />
+          <span>[9 SYSTEMS ACTIVE // LENIS SMOOTH // 60 FPS]</span>
+        </div>
 
         {/* Action Controls */}
         <div className="nav-actions">
-          {/* Spacing Overlay Toggle */}
+          {/* Sound Toggle */}
           <button
-            onClick={onToggleSpacingOverlay}
-            className={`btn-icon-pill ${isSpacingActive ? 'active' : ''}`}
-            title="Включить радар отступов Spacing Overlay"
+            onClick={handleToggleSound}
+            className={`btn-icon-nav ${!isMuted ? 'active-glow' : ''}`}
+            title="Вкл/Выкл звуковые эффекты"
+            aria-label="Звук"
           >
-            <Eye size={15} />
-            <span>{isSpacingActive ? 'Радар: ON' : 'Отступы'}</span>
+            {isMuted ? <VolumeX size={17} /> : <Volume2 size={17} />}
           </button>
 
-          {/* Asset Vault Upload */}
+          {/* Spacing Radar Toggle */}
+          <button
+            onClick={onToggleSpacingOverlay}
+            className={`btn-icon-nav ${isSpacingActive ? 'active-glow' : ''}`}
+            title="Включить Spacing Overlay радар отступов"
+            aria-label="Отступы"
+          >
+            <Eye size={17} />
+          </button>
+
+          {/* Asset Vault Upload (Desktop) */}
           <button
             onClick={onOpenVault}
-            className="btn-icon-pill"
-            title="Загрузить ассеты с ПК в библиотеку"
+            className="btn-studio-secondary nav-btn-desktop"
           >
             <FolderDown size={15} />
-            <span>Загрузить ассет</span>
+            <span>Ассеты</span>
           </button>
 
           {/* Download System Button */}
           <button 
             onClick={onOpenDownload}
-            className="btn-studio-secondary btn-sm"
+            className="btn-studio-secondary nav-btn-desktop"
           >
             <Download size={15} />
-            <span>Скачать систему</span>
+            <span>Скачать</span>
           </button>
 
           {/* Order Project Button */}
           <button 
             onClick={onOpenOrder}
-            className="btn-studio-primary btn-sm"
+            className="btn-studio-primary nav-btn-cta"
           >
             <Sparkles size={15} />
             <span>Заказать сайт</span>
@@ -100,17 +112,18 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
           left: 0;
           right: 0;
           z-index: 9999;
-          padding: 16px 24px;
-          transition: all 0.3s ease;
+          padding: 18px clamp(16px, 4vw, 36px);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .nav-scrolled {
-          padding: 10px 24px;
-          background: rgba(10, 10, 14, 0.85);
-          backdrop-filter: blur(16px);
+          padding: 12px clamp(16px, 4vw, 36px);
+          background: rgba(6, 7, 10, 0.88);
+          backdrop-filter: blur(20px);
           border-bottom: var(--border-width) solid var(--border);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
         }
         .nav-container {
-          max-width: 1400px;
+          max-width: 1360px;
           margin: 0 auto;
           display: flex;
           align-items: center;
@@ -120,68 +133,87 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
         .nav-brand {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
         }
-        .brand-badge {
+        .brand-logo-text {
           font-family: var(--font-heading);
           font-weight: 900;
-          font-size: 1.1rem;
+          font-size: clamp(1.1rem, 1rem + 0.4vw, 1.35rem);
           color: var(--accent);
-          letter-spacing: 0.1em;
+          letter-spacing: 0.12em;
+          text-shadow: 0 0 25px var(--accent-glow);
         }
-        .brand-version {
+        .brand-badge-v {
           font-family: var(--font-mono);
-          font-size: 0.75rem;
+          font-size: 0.7rem;
           padding: 2px 6px;
           background: var(--bg-surface);
           border: var(--border-width) solid var(--border);
           border-radius: 4px;
           color: var(--text-secondary);
         }
-        .nav-links {
+        .nav-telemetry {
           display: flex;
           align-items: center;
-          gap: 18px;
-        }
-        .nav-links a {
-          font-size: 0.85rem;
+          gap: 8px;
           font-family: var(--font-mono);
-          color: var(--text-secondary);
-          transition: color 0.2s;
+          font-size: 0.72rem;
+          color: var(--text-muted);
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          padding: 6px 14px;
+          border-radius: 20px;
         }
-        .nav-links a:hover {
-          color: var(--accent);
+        .tele-pulse {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #00ff88;
+          box-shadow: 0 0 8px #00ff88;
+          animation: pulse 2s infinite;
         }
-        @media (max-width: 1100px) {
-          .nav-links { display: none; }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        @media (max-width: 980px) {
+          .nav-telemetry { display: none; }
         }
         .nav-actions {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
         }
-        .btn-icon-pill {
+        .btn-icon-nav {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          padding: 6px 12px;
-          border-radius: 20px;
+          justify-content: center;
+          width: 44px;
+          height: 44px;
+          border-radius: var(--radius-sm);
           background: var(--bg-surface);
           border: var(--border-width) solid var(--border);
           color: var(--text-secondary);
-          font-size: 0.78rem;
-          font-family: var(--font-mono);
           cursor: pointer;
           transition: all 0.2s;
         }
-        .btn-icon-pill:hover, .btn-icon-pill.active {
+        .btn-icon-nav:hover, .btn-icon-nav.active-glow {
           border-color: var(--accent);
           color: var(--accent);
+          box-shadow: 0 0 15px var(--accent-glow);
         }
-        .btn-sm {
+        .nav-btn-desktop {
           padding: 8px 16px;
+          min-height: 44px;
+          font-size: 0.8rem;
+        }
+        @media (max-width: 768px) {
+          .nav-btn-desktop { display: none; }
+        }
+        .nav-btn-cta {
+          padding: 8px 18px;
+          min-height: 44px;
           font-size: 0.82rem;
-          min-height: 38px;
         }
       `}</style>
     </header>
