@@ -23,7 +23,7 @@ export class LenisScrollManager {
       touchMultiplier: 1.5
     });
 
-    // Synchronize Lenis with GSAP ScrollTrigger
+    // Synchronize Lenis with GSAP ScrollTrigger (Guide 1)
     this.lenis.on('scroll', ScrollTrigger.update);
 
     gsap.ticker.add((time: number) => {

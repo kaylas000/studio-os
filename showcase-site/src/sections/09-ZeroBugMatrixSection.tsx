@@ -63,7 +63,7 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
   };
 
   return (
-    <section className="section-block" id="zero-bug">
+    <section className="section" id="zero-bug">
       <div className="container">
         <div className="section-tagline">
           <ShieldCheck size={14} />
@@ -77,7 +77,6 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
         </p>
 
         <div className="zero-bug-layout-grid">
-          {/* Terminal Logs Simulation */}
           <div className="test-terminal-card">
             <div className="terminal-top-bar">
               <div className="window-dots">
@@ -105,7 +104,6 @@ export const ZeroBugMatrixSection: React.FC<{ onDownload: () => void }> = ({ onD
             </div>
           </div>
 
-          {/* Real-time Hardware Telemetry */}
           <div className="telemetry-card">
             <h3>⚡ Телеметрия производительности</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '16px' }}>

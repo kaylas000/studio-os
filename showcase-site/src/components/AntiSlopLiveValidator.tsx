@@ -1,6 +1,6 @@
 // showcase-site/src/components/AntiSlopLiveValidator.tsx
 import React, { useState } from 'react';
-import { ShieldAlert, AlertTriangle, CheckCircle2, RefreshCw, Download, Sparkles, Sliders, Type, Palette, Layout, ShieldCheck } from 'lucide-react';
+import { ShieldAlert, AlertTriangle, CheckCircle2, RefreshCw, Download, Sparkles, Sliders } from 'lucide-react';
 import { ClicheDetector } from '@library/02-anti-slop/ClicheDetector';
 import { GradientSlopDetector } from '@library/02-anti-slop/GradientSlopDetector';
 import { ConstraintInjector, CreativeConstraint } from '@library/02-anti-slop/ConstraintInjector';
@@ -25,7 +25,7 @@ export const AntiSlopLiveValidator: React.FC<AntiSlopProps> = ({ onDownload, onO
   const [headingFont, setHeadingFont] = useState('Inter');
   const [bodyFont, setBodyFont] = useState('Inter');
 
-  // 4. Constraints Generator State
+  // 4. Constraints Generator State (Guide 2)
   const constraintGen = new ConstraintInjector();
   const [constraints, setConstraints] = useState<CreativeConstraint[]>(constraintGen.generate('studio-demo', 3));
 
@@ -44,7 +44,7 @@ export const AntiSlopLiveValidator: React.FC<AntiSlopProps> = ({ onDownload, onO
 
   // Weighted Overall Originality Score (from Guide 2, Module 6)
   const gradientScore = gradientCheck.isSlop ? 30 : 100;
-  const layoutScore = 90; // Layout uniqueness score
+  const layoutScore = 90;
   const overallOriginalityScore = Math.round(
     textAnalysis.score * 0.35 + gradientScore * 0.25 + fontScore * 0.2 + layoutScore * 0.2
   );

@@ -1,6 +1,6 @@
 // showcase-site/src/sections/05-SpacingRadarSection.tsx
 import React, { useState } from 'react';
-import { Ruler, Eye, EyeOff, CheckCircle2, Download, Box, Layers } from 'lucide-react';
+import { Ruler, Eye, EyeOff, CheckCircle2, Download } from 'lucide-react';
 import { soundEngine } from '../audio/WebAudioEngine';
 
 interface SpacingRadarProps {
@@ -30,7 +30,7 @@ export const SpacingRadarSection: React.FC<SpacingRadarProps> = ({
   ];
 
   return (
-    <section className="section-block" id="spacing-radar">
+    <section className="section" id="spacing-radar">
       <div className="container">
         <div className="section-tagline">
           <Ruler size={14} />
@@ -44,7 +44,6 @@ export const SpacingRadarSection: React.FC<SpacingRadarProps> = ({
         </p>
 
         <div className="spacing-layout-grid">
-          {/* Live Overlay Toggle & Box Model Viewer */}
           <div className="spacing-card">
             <div className="spacing-card-head">
               <div>
@@ -52,7 +51,7 @@ export const SpacingRadarSection: React.FC<SpacingRadarProps> = ({
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.78rem' }}>Горячая клавиша: Ctrl + Shift + S</p>
               </div>
               <button 
-                className={`btn-studio-primary ${isOverlayActive ? 'active-radar' : ''}`}
+                className="btn-studio-primary"
                 onClick={() => {
                   soundEngine.playClick(600);
                   onToggleOverlay();
@@ -63,7 +62,6 @@ export const SpacingRadarSection: React.FC<SpacingRadarProps> = ({
               </button>
             </div>
 
-            {/* Interactive Box Model Visualization */}
             <div className="box-model-container">
               <div className="margin-layer">
                 <span className="layer-lbl">MARGIN: 24px (var(--spacing-6))</span>
@@ -83,7 +81,6 @@ export const SpacingRadarSection: React.FC<SpacingRadarProps> = ({
             </div>
           </div>
 
-          {/* Token Scale Matrix */}
           <div className="spacing-card">
             <div className="spacing-card-head">
               <div>

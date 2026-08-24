@@ -89,7 +89,7 @@ export class MobileDebugOverlay {
   }
 }
 
-// Global setup & triple-tap trigger
+// Global setup & triple-tap trigger (Guide 3)
 if (typeof window !== 'undefined') {
   (window as any).__mobileDebug = new MobileDebugOverlay();
   let tapCount = 0;

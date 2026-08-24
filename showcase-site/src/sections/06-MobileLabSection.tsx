@@ -1,6 +1,6 @@
 // showcase-site/src/sections/06-MobileLabSection.tsx
 import React, { useState } from 'react';
-import { Smartphone, CheckCircle, ShieldCheck, Download, Fingerprint } from 'lucide-react';
+import { Smartphone, CheckCircle, Download, Fingerprint } from 'lucide-react';
 import { soundEngine } from '../audio/WebAudioEngine';
 
 export const MobileLabSection: React.FC<{ onDownload: () => void }> = ({ onDownload }) => {
@@ -19,7 +19,7 @@ export const MobileLabSection: React.FC<{ onDownload: () => void }> = ({ onDownl
   ];
 
   return (
-    <section className="section-block" id="mobile">
+    <section className="section" id="mobile">
       <div className="container">
         <div className="section-tagline">
           <Smartphone size={14} />
@@ -33,7 +33,6 @@ export const MobileLabSection: React.FC<{ onDownload: () => void }> = ({ onDownl
         </p>
 
         <div className="mobile-lab-layout-grid">
-          {/* Interactive Hardware Simulated Frame */}
           <div className="device-simulator-col">
             <div className="device-selector-row">
               {DEVICES.map((d, i) => (
@@ -82,7 +81,6 @@ export const MobileLabSection: React.FC<{ onDownload: () => void }> = ({ onDownl
             </div>
           </div>
 
-          {/* Standards & Triple-Tap Tool Card */}
           <div className="mobile-standards-col">
             <h3>📱 Стандарты Mobile-Perfect студии</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '16px' }}>

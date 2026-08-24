@@ -10,7 +10,7 @@ interface AntiSlopSectionProps {
 
 export const AntiSlopScannerSection: React.FC<AntiSlopSectionProps> = ({ onDownload, onOpenOrder }) => {
   return (
-    <section className="section-block" id="anti-slop">
+    <section className="section" id="anti-slop">
       <div className="container">
         <div className="section-tagline">
           <ShieldAlert size={14} />

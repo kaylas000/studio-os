@@ -1,6 +1,6 @@
 // showcase-site/src/sections/10-MonorepoArchitectureSection.tsx
 import React from 'react';
-import { FolderTree, Sparkles, Download, Terminal, FolderDown, Layers } from 'lucide-react';
+import { FolderTree, Sparkles, Download, FolderDown } from 'lucide-react';
 import { soundEngine } from '../audio/WebAudioEngine';
 
 interface MonorepoProps {
@@ -20,7 +20,7 @@ export const MonorepoArchitectureSection: React.FC<MonorepoProps> = ({
     { name: 'library/01-animations/', type: 'folder', desc: 'Master Timeline, Lenis, WebCodecs, Post-processing' },
     { name: 'library/02-anti-slop/', type: 'folder', desc: 'Словари AI-клише, детекторы градиентов, хэши лейаутов' },
     { name: 'library/03-mobile/', type: 'folder', desc: 'Fluid clamp(), safe-area, TouchTargetValidator (48px)' },
-    { name: 'library/04-spacing/', type: 'folder', desc: 'Шкала дизайн-токенов, <Box>, <Stack>, SpacingOverlay' },
+    { name: 'library/04-spacing/', type: 'folder', desc: 'Шкала дизайн-токенов, Box/Stack, SpacingOverlay' },
     { name: 'library/05-hollywood-intros/', type: 'folder', desc: 'Three.js 3D-заставки (Universal, Particles, Glitch)' },
     { name: 'library/06-seo/', type: 'folder', desc: 'Zod контракты, AST image-seo, JSON-LD Schema граф' },
     { name: 'library/07-archetypes/', type: 'folder', desc: '5 дизайн-архетипов: Noir, Brutalism, Cyber, Swiss, Minimal' },
@@ -32,7 +32,7 @@ export const MonorepoArchitectureSection: React.FC<MonorepoProps> = ({
   ];
 
   return (
-    <section className="section-block" id="vault-section">
+    <section className="section" id="vault-section">
       <div className="container">
         <div className="section-tagline">
           <FolderTree size={14} />
@@ -46,7 +46,6 @@ export const MonorepoArchitectureSection: React.FC<MonorepoProps> = ({
         </p>
 
         <div className="tree-layout-grid">
-          {/* File Tree Explorer Box */}
           <div className="tree-explorer-card">
             <div className="tree-card-header">
               <span className="tree-root-lbl">📂 studio-os/ (Monorepo Root)</span>
@@ -56,7 +55,7 @@ export const MonorepoArchitectureSection: React.FC<MonorepoProps> = ({
                 style={{ padding: '8px 16px', fontSize: '0.78rem', minHeight: '38px' }}
               >
                 <Download size={14} />
-                <span>Скачать весь репозиторий (ZIP)</span>
+                <span>Скачать репозиторий (ZIP)</span>
               </button>
             </div>
 
@@ -72,7 +71,6 @@ export const MonorepoArchitectureSection: React.FC<MonorepoProps> = ({
             </div>
           </div>
 
-          {/* Quick Command Callout */}
           <div className="cli-callout-card">
             <h3>💻 Консольные команды ИИ-агента</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '16px' }}>

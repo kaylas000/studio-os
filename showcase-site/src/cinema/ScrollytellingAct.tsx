@@ -30,7 +30,7 @@ export const ScrollytellingAct: React.FC<ScrollytellingActProps> = ({
         </div>
         <div className="hud-metric">
           <span>CAMERA VECTOR:</span>
-          <strong>Z:{(18 - scrollProgress * 6).toFixed(1)}m</strong>
+          <strong>Z:{(20 - scrollProgress * 7).toFixed(1)}m</strong>
         </div>
         <div className="hud-metric">
           <span>ARCHETYPE MATRIX:</span>
@@ -38,7 +38,7 @@ export const ScrollytellingAct: React.FC<ScrollytellingActProps> = ({
         </div>
       </div>
 
-      {/* Act 1: 3D Monolith & Cinema Intro */}
+      {/* Act 1: 3D Monolith & Motion Production */}
       <section className="scrolly-act-section" id="act-1">
         <div className="act-content-card">
           <div className="act-header">
@@ -62,11 +62,17 @@ export const ScrollytellingAct: React.FC<ScrollytellingActProps> = ({
           </div>
 
           <div className="act-actions-row">
-            <button className="btn-act-primary" onClick={onOpenOrder}>
+            <button 
+              className="btn-studio-primary" 
+              onClick={() => { soundEngine.playClick(600); onOpenOrder(); }}
+            >
               <Sparkles size={16} />
               <span>Заказать сайт студии</span>
             </button>
-            <button className="btn-act-secondary" onClick={onOpenDownload}>
+            <button 
+              className="btn-studio-secondary" 
+              onClick={() => { soundEngine.playClick(500); onOpenDownload(); }}
+            >
               <Download size={16} />
               <span>Скачать модуль 3D</span>
             </button>
@@ -101,7 +107,10 @@ export const ScrollytellingAct: React.FC<ScrollytellingActProps> = ({
           </div>
 
           <div className="act-actions-row">
-            <button className="btn-act-secondary" onClick={onOpenDownload}>
+            <button 
+              className="btn-studio-secondary" 
+              onClick={() => { soundEngine.playClick(500); onOpenDownload(); }}
+            >
               <Download size={16} />
               <span>Скачать Anti-Slop линтеры (ZIP)</span>
             </button>
@@ -149,7 +158,10 @@ export const ScrollytellingAct: React.FC<ScrollytellingActProps> = ({
           </div>
 
           <div className="act-actions-row">
-            <button className="btn-act-secondary" onClick={onOpenDownload}>
+            <button 
+              className="btn-studio-secondary" 
+              onClick={() => { soundEngine.playClick(500); onOpenDownload(); }}
+            >
               <Download size={16} />
               <span>Скачать 5 Архетипов (JSON/CSS)</span>
             </button>
@@ -193,11 +205,17 @@ export const ScrollytellingAct: React.FC<ScrollytellingActProps> = ({
           </div>
 
           <div className="act-actions-row">
-            <button className="btn-act-primary" onClick={onOpenOrder}>
+            <button 
+              className="btn-studio-primary" 
+              onClick={() => { soundEngine.playClick(650); onOpenOrder(); }}
+            >
               <Sparkles size={16} />
               <span>Запустить проект в STUDIO OS</span>
             </button>
-            <button className="btn-act-secondary" onClick={onOpenVault}>
+            <button 
+              className="btn-studio-secondary" 
+              onClick={() => { soundEngine.playClick(520); onOpenVault(); }}
+            >
               <span>Загрузить ассеты с ПК</span>
             </button>
           </div>
@@ -208,12 +226,10 @@ export const ScrollytellingAct: React.FC<ScrollytellingActProps> = ({
         .scrollytelling-container {
           position: relative;
           z-index: 10;
-          padding: 60px 20px 100px;
-          max-width: 1200px;
-          margin: 0 auto;
+          padding: 60px 0 100px;
           display: flex;
           flex-direction: column;
-          gap: 120px;
+          gap: clamp(80px, 12vw, 150px);
         }
         .scrolly-telemetry-hud {
           position: sticky;
@@ -224,8 +240,8 @@ export const ScrollytellingAct: React.FC<ScrollytellingActProps> = ({
           justify-content: space-between;
           gap: 12px;
           padding: 10px 18px;
-          background: rgba(10, 12, 16, 0.75);
-          backdrop-filter: blur(14px);
+          background: rgba(8, 10, 14, 0.8);
+          backdrop-filter: blur(16px);
           border: var(--border-width) solid var(--border);
           border-radius: var(--radius-sm);
           font-family: var(--font-mono);
@@ -237,7 +253,7 @@ export const ScrollytellingAct: React.FC<ScrollytellingActProps> = ({
           margin-left: 6px;
         }
         .scrolly-act-section {
-          min-height: 80vh;
+          min-height: 75vh;
           display: flex;
           align-items: center;
           justify-content: flex-start;
@@ -249,7 +265,7 @@ export const ScrollytellingAct: React.FC<ScrollytellingActProps> = ({
           border-radius: var(--radius-md);
           padding: clamp(24px, 4vw, 44px);
           box-shadow: var(--shadow-card);
-          backdrop-filter: blur(16px);
+          backdrop-filter: blur(20px);
         }
         .act-header {
           display: flex;
@@ -262,7 +278,7 @@ export const ScrollytellingAct: React.FC<ScrollytellingActProps> = ({
           font-size: clamp(2.5rem, 5vw, 4rem);
           line-height: 1;
           color: var(--accent);
-          opacity: 0.85;
+          opacity: 0.9;
         }
         .act-tagline {
           display: block;
@@ -301,42 +317,6 @@ export const ScrollytellingAct: React.FC<ScrollytellingActProps> = ({
           display: flex;
           flex-wrap: wrap;
           gap: 12px;
-        }
-        .btn-act-primary {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          min-height: 48px;
-          padding: 12px 24px;
-          background: var(--accent);
-          color: #000;
-          font-weight: bold;
-          font-size: 0.88rem;
-          border-radius: var(--radius-sm);
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .btn-act-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 5px 20px var(--accent-glow);
-        }
-        .btn-act-secondary {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          min-height: 48px;
-          padding: 12px 20px;
-          background: var(--bg-primary);
-          border: var(--border-width) solid var(--border);
-          color: var(--text-primary);
-          font-size: 0.85rem;
-          border-radius: var(--radius-sm);
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .btn-act-secondary:hover {
-          border-color: var(--accent);
-          color: var(--accent);
         }
         .slop-visual-meter {
           background: var(--bg-primary);

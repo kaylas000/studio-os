@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import JSZip from 'jszip';
 import confetti from 'canvas-confetti';
-import { Download, CheckCircle2, FileCode, Package, Layers } from 'lucide-react';
+import { Download, CheckCircle2, FileCode, Package } from 'lucide-react';
+import { soundEngine } from '../audio/WebAudioEngine';
 
 interface DownloadModalProps {
   isOpen: boolean;
@@ -26,59 +27,39 @@ const MODULES_REGISTRY: ModuleInfo[] = [
     files: [
       {
         name: 'TimelineEngine.ts',
-        content: `// STUDIO OS: TimelineEngine.ts
-import gsap from 'gsap';
-
-export class MasterTimelineEngine {
-  private master = gsap.timeline({ paused: true });
-  public createScene(id: string) { return gsap.timeline(); }
-  public scrubTo(p: number) { this.master.progress(p); }
-}`
+        content: `// STUDIO OS: Master Timeline Engine\nimport gsap from 'gsap';\nexport class MasterTimelineEngine {\n  private master = gsap.timeline({ paused: true });\n  public createScene(id: string) { return gsap.timeline(); }\n  public scrubTo(p: number) { this.master.progress(p); }\n}`
       },
       {
-        name: 'ImageSequenceScrubber.ts',
-        content: `// STUDIO OS: Apple-style Image Sequence Scrubber
-export class ImageSequenceScrubber {
-  constructor(public canvas: HTMLCanvasElement, public frameCount: number) {}
-}`
+        name: 'AppleSequenceScrubber.ts',
+        content: `// STUDIO OS: Apple-style Image Sequence Scrubber\nexport class ImageSequenceScrubber {\n  constructor(public canvas: HTMLCanvasElement, public frameCount: number) {}\n}`
       }
     ]
   },
   {
     id: '02-anti-slop',
-    title: '02. Анти-слоп система (AI-Cliche & Gradient Filter)',
+    title: '02. Анти-слоп система (AI-Cliche & Delta-E Gradient Filter)',
     category: 'Quality & Authenticity',
     sizeEstimate: '28 KB',
     files: [
       {
         name: 'ClicheDetector.ts',
-        content: `// STUDIO OS: ClicheDetector.ts
-export class ClicheDetector {
-  public analyze(text: string) { return { score: 95, verdict: "Оригинал" }; }
-}`
+        content: `// STUDIO OS: ClicheDetector.ts\nexport class ClicheDetector {\n  public analyze(text: string) { return { score: 95, verdict: "Оригинал" }; }\n}`
       },
       {
         name: 'GradientSlopDetector.ts',
-        content: `// STUDIO OS: GradientSlopDetector.ts
-export class GradientSlopDetector {
-  public checkGradient(c1: string, c2: string) { return { isSlop: false }; }
-}`
+        content: `// STUDIO OS: GradientSlopDetector.ts\nexport class GradientSlopDetector {\n  public checkGradient(c1: string, c2: string) { return { isSlop: false }; }\n}`
       }
     ]
   },
   {
     id: '03-mobile',
-    title: '03. Mobile-Perfect Адаптация (Fluid & Touch)',
+    title: '03. Mobile-Perfect Адаптация (Fluid & Touch 48px)',
     category: 'Responsive & UX',
     sizeEstimate: '18 KB',
     files: [
       {
         name: 'fluid-system.css',
-        content: `/* Fluid Typography & Touch-Targets */
-:root {
-  --fs-hero: clamp(2.5rem, 1.5rem + 5vw, 6rem);
-  --touch-target-min: 44px;
-}`
+        content: `/* Fluid Typography & Touch-Targets */\n:root {\n  --fs-hero: clamp(2.5rem, 1.5rem + 5vw, 6rem);\n  --touch-target-min: 44px;\n}`
       },
       {
         name: 'TouchTargetValidator.ts',
@@ -110,9 +91,7 @@ export class GradientSlopDetector {
     files: [
       {
         name: 'IntroEngine.ts',
-        content: `// STUDIO OS: Hollywood 3D Intro Engine (Three.js + Shaders)
-import * as THREE from 'three';
-export class IntroEngine { constructor(options: any) {} }`
+        content: `// STUDIO OS: Hollywood 3D Intro Engine\nimport * as THREE from 'three';\nexport class IntroEngine { constructor(options: any) {} }`
       }
     ]
   },
@@ -173,6 +152,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
   if (!isOpen) return null;
 
   const downloadModuleZip = async (mod: ModuleInfo) => {
+    soundEngine.playClick(550);
     setDownloadingId(mod.id);
     const zip = new JSZip();
     const folder = zip.folder(`studio-os-${mod.id}`);
@@ -199,6 +179,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
   };
 
   const downloadFullStudioOS = async () => {
+    soundEngine.playCinematicImpact();
     setDownloadingId('all');
     const zip = new JSZip();
     const root = zip.folder('studio-os-full-ecosystem');
@@ -300,6 +281,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
           justify-content: space-between;
           gap: 16px;
           margin-bottom: 24px;
+          flex-wrap: wrap;
         }
         .full-bundle-info {
           display: flex;
@@ -307,7 +289,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
           gap: 14px;
         }
         .full-bundle-info h3 {
-          font-size: 1.1rem;
+          font-size: 1.05rem;
           margin-bottom: 4px;
         }
         .full-bundle-info p {
@@ -316,7 +298,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
         }
         .modules-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
           gap: 14px;
           max-height: 55vh;
           overflow-y: auto;
@@ -344,7 +326,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
           margin-bottom: 4px;
         }
         .module-item h4 {
-          font-size: 0.95rem;
+          font-size: 0.92rem;
           margin-bottom: 8px;
         }
         .mod-files {

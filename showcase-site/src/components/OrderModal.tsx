@@ -1,7 +1,8 @@
 // showcase-site/src/components/OrderModal.tsx
 import React, { useState } from 'react';
-import { Sparkles, Check, Send, ShieldCheck } from 'lucide-react';
+import { Sparkles, Send, ShieldCheck } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { soundEngine } from '../audio/WebAudioEngine';
 
 interface OrderModalProps {
   isOpen: boolean;
@@ -16,7 +17,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
     hasHollywoodIntro: true,
     animationLevel: 'cinematic',
     pageCount: 3,
-    dislikedColors: 'Фиолетовый AI-градиент',
+    dislikedColors: 'Фиолетовый AI-градиент, дефолтный Inter',
     targetMetrics: 'Увеличение конверсии в заявку до 4.8%'
   });
 
@@ -34,6 +35,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    soundEngine.playCinematicImpact();
     setIsSubmitted(true);
     confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
   };
@@ -62,7 +64,11 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
             <div className="summary-pill">
               Архетип: <strong>{formData.archetype}</strong> • Оценка: <strong>{calculateEstimate()}</strong>
             </div>
-            <button className="btn-studio-primary" onClick={onClose} style={{ marginTop: '20px' }}>
+            <button 
+              className="btn-studio-primary" 
+              onClick={onClose} 
+              style={{ marginTop: '20px', width: 'auto' }}
+            >
               Вернуться к витрине студии
             </button>
           </div>
@@ -81,7 +87,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
               </div>
 
               <div className="form-group">
-                <label>Telegram / Email / Телефон для связи *</label>
+                <label>Telegram / Email для связи *</label>
                 <input
                   type="text"
                   required
@@ -92,7 +98,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
               </div>
 
               <div className="form-group full-width">
-                <label>Базовый визуальный архетип</label>
+                <label>Базовый визуальный архетип (Система 07)</label>
                 <div className="archetype-select-row">
                   {[
                     { id: 'luxury-noir', name: 'Luxury Noir' },
@@ -105,7 +111,10 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
                       type="button"
                       key={a.id}
                       className={`arch-btn ${formData.archetype === a.id ? 'active' : ''}`}
-                      onClick={() => setFormData({ ...formData, archetype: a.id })}
+                      onClick={() => {
+                        soundEngine.playClick(450);
+                        setFormData({ ...formData, archetype: a.id });
+                      }}
                     >
                       {a.name}
                     </button>
@@ -114,7 +123,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
               </div>
 
               <div className="form-group">
-                <label>Голливудская 3D-заставка</label>
+                <label>Голливудская 3D-заставка (Система 05)</label>
                 <div className="checkbox-wrap">
                   <input
                     type="checkbox"
@@ -122,7 +131,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
                     checked={formData.hasHollywoodIntro}
                     onChange={e => setFormData({ ...formData, hasHollywoodIntro: e.target.checked })}
                   />
-                  <label htmlFor="introCheck">Интегрировать Three.js 3D-интро</label>
+                  <label htmlFor="introCheck">Интегрировать 3D Three.js интро</label>
                 </div>
               </div>
 
@@ -133,7 +142,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
                   onChange={e => setFormData({ ...formData, animationLevel: e.target.value })}
                 >
                   <option value="subtle">Стандартный (плавные переходы)</option>
-                  <option value="cinematic">Кино-продакшн (ScrollTrigger + Shaders)</option>
+                  <option value="cinematic">Кино-продакшн (ScrollTrigger + Post-FX)</option>
                 </select>
               </div>
 
@@ -151,9 +160,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
             {/* Price & Summary Box */}
             <div className="estimate-bar">
               <div>
-                <span className="est-lbl">Предварительный расчет:</span>
+                <span className="est-lbl">Предварительный расчет стоимости:</span>
                 <div className="est-val">{calculateEstimate()}</div>
-                <span className="est-terms"><ShieldCheck size={14} /> Включает все 9 стандартов, SEO, 60 FPS и адаптив</span>
+                <span className="est-terms"><ShieldCheck size={14} /> Включает все 9 стандартов, SEO, 60 FPS и мобильный адаптив</span>
               </div>
               <button type="submit" className="btn-studio-primary">
                 <Send size={16} />
@@ -171,6 +180,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
           gap: 16px;
           margin-bottom: 20px;
         }
+        @media (max-width: 640px) {
+          .form-grid { grid-template-columns: 1fr; }
+        }
         .full-width {
           grid-column: 1 / -1;
         }
@@ -183,7 +195,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
         }
         .form-group input, .form-group select {
           width: 100%;
-          min-height: 42px;
+          min-height: 44px;
           padding: 10px 14px;
           background: var(--bg-primary);
           border: var(--border-width) solid var(--border);
@@ -220,7 +232,11 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
           display: flex;
           align-items: center;
           gap: 10px;
-          min-height: 42px;
+          min-height: 44px;
+        }
+        .checkbox-wrap label {
+          margin: 0;
+          cursor: pointer;
         }
         .estimate-bar {
           background: var(--bg-primary);
@@ -231,11 +247,13 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
           align-items: center;
           justify-content: space-between;
           gap: 16px;
+          flex-wrap: wrap;
         }
         .est-lbl {
-          font-size: 0.78rem;
+          font-size: 0.75rem;
           font-family: var(--font-mono);
           color: var(--text-secondary);
+          display: block;
         }
         .est-val {
           font-size: 1.5rem;

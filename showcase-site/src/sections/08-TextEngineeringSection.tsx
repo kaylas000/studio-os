@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Type, Sparkles, CheckCircle2, TrendingUp, Download } from 'lucide-react';
 import { FactDensityScorer } from '@library/08-copywriting/FactDensityScorer';
 import { ReadabilityAnalyzer } from '@library/08-copywriting/ReadabilityAnalyzer';
+import { soundEngine } from '../audio/WebAudioEngine';
 
 export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ onDownload }) => {
   const [copyText, setCopyText] = useState(
@@ -26,11 +27,11 @@ export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ o
           Алгоритмический контроль плотности фактов (минимум 1 цифра на 25 слов) и естественного веб-ритма.
         </p>
 
-        <div className="copy-showcase-grid">
+        <div className="copy-layout-grid">
           {/* Live Copy Analyzer Box */}
           <div className="copy-editor-card">
             <div className="copy-editor-head">
-              <h3>✍️ Живой анализатор фактуры и читаемости текста</h3>
+              <h3>✍️ Анализатор фактуры и читаемости</h3>
               <span className="badge-pill">NLP Score Engine</span>
             </div>
 
@@ -63,7 +64,7 @@ export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ o
 
             {/* Facts Extracted Chips */}
             {factReport.factsFound.length > 0 && (
-              <div className="extracted-facts-wrap">
+              <div className="extracted-facts-box">
                 <span className="ef-title">Твёрдые доказательства (Facts):</span>
                 <div className="ef-chips">
                   {factReport.factsFound.map((f, i) => (
@@ -81,7 +82,7 @@ export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ o
               Текст автоматически синхронизируется с выбранным визуальным архетипом.
             </p>
 
-            <div className="tov-rules-box">
+            <div className="tov-rules-list">
               <div className="tov-item">
                 <strong>Luxury Noir ToV:</strong>
                 <span>Сдержанный, лаконичный, без восклицательных знаков и капса</span>
@@ -96,7 +97,11 @@ export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ o
               </div>
             </div>
 
-            <button className="btn-studio-secondary" onClick={onDownload} style={{ width: '100%', marginTop: '16px' }}>
+            <button 
+              className="btn-studio-secondary" 
+              onClick={() => { soundEngine.playClick(500); onDownload(); }} 
+              style={{ width: '100%', marginTop: '16px' }}
+            >
               <Download size={15} />
               <span>Скачать модуль копирайтинга (ZIP)</span>
             </button>
@@ -105,19 +110,19 @@ export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ o
       </div>
 
       <style>{`
-        .copy-showcase-grid {
+        .copy-layout-grid {
           display: grid;
           grid-template-columns: 1.3fr 1fr;
           gap: 24px;
         }
         @media (max-width: 960px) {
-          .copy-showcase-grid { grid-template-columns: 1fr; }
+          .copy-layout-grid { grid-template-columns: 1fr; }
         }
         .copy-editor-card, .tov-card {
           background: var(--bg-surface);
           border: var(--border-width) solid var(--border);
           border-radius: var(--radius-md);
-          padding: 24px;
+          padding: clamp(18px, 3vw, 28px);
         }
         .copy-editor-head {
           display: flex;
@@ -133,8 +138,8 @@ export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ o
           color: var(--text-primary);
           padding: 14px;
           font-family: inherit;
-          font-size: 0.95rem;
-          line-height: 1.6;
+          font-size: 0.92rem;
+          line-height: 1.5;
           resize: vertical;
           outline: none;
           margin-bottom: 16px;
@@ -153,7 +158,7 @@ export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ o
         .metric-box { text-align: center; }
         .metric-box .m-val { display: block; font-family: var(--font-mono); font-size: 1.25rem; font-weight: bold; color: var(--accent); }
         .metric-box .m-lbl { font-size: 0.68rem; color: var(--text-secondary); }
-        .extracted-facts-wrap {
+        .extracted-facts-box {
           background: var(--bg-primary);
           padding: 12px;
           border-radius: var(--radius-sm);
@@ -171,7 +176,7 @@ export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ o
           font-family: var(--font-mono);
           font-size: 0.75rem;
         }
-        .tov-rules-box {
+        .tov-rules-list {
           display: flex;
           flex-direction: column;
           gap: 10px;

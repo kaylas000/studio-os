@@ -40,7 +40,7 @@ export const AppleSequenceScrubber: React.FC<{ onDownload: () => void }> = ({ on
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // 2. Volumetric Light Beams (God-Rays)
+      // 2. Volumetric Light Beams (God-Rays - Guide 5)
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(angle * 0.15);
@@ -110,7 +110,7 @@ export const AppleSequenceScrubber: React.FC<{ onDownload: () => void }> = ({ on
 
       ctx.restore();
 
-      // 4. Post-Processing: Film Grain Shader Simulation
+      // 4. Post-Processing: Film Grain Shader Simulation (Guide 1)
       if (grainEnabled) {
         const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imgData.data;

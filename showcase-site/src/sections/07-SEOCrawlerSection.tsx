@@ -1,6 +1,6 @@
 // showcase-site/src/sections/07-SEOCrawlerSection.tsx
 import React, { useState } from 'react';
-import { Search, Code2, CheckCircle2, ShieldCheck, Download, Layers } from 'lucide-react';
+import { Search, Code2, CheckCircle2, Download } from 'lucide-react';
 import { soundEngine } from '../audio/WebAudioEngine';
 
 export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDownload }) => {
@@ -36,7 +36,7 @@ export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDown
   };
 
   return (
-    <section className="section-block" id="seo">
+    <section className="section" id="seo">
       <div className="container">
         <div className="section-tagline">
           <Search size={14} />
@@ -50,7 +50,6 @@ export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDown
         </p>
 
         <div className="seo-showcase-grid">
-          {/* Structured Data & Meta Inspector */}
           <div className="seo-inspector-card">
             <div className="seo-tabs-bar">
               <button 
@@ -120,7 +119,6 @@ export const SEOCrawlerSection: React.FC<{ onDownload: () => void }> = ({ onDown
             </div>
           </div>
 
-          {/* Crawler Summary Card */}
           <div className="seo-summary-card">
             <h3>🤖 Автоматизация поискового краулинга</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '16px' }}>

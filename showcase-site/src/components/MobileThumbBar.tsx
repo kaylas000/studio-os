@@ -1,6 +1,6 @@
 // showcase-site/src/components/MobileThumbBar.tsx
 import React, { useState } from 'react';
-import { Palette, Download, Sparkles, FolderDown, Menu, X, Play, ShieldCheck } from 'lucide-react';
+import { Palette, Download, Sparkles, FolderDown, Play } from 'lucide-react';
 import { soundEngine } from '../audio/WebAudioEngine';
 
 interface MobileThumbBarProps {
@@ -35,7 +35,7 @@ export const MobileThumbBar: React.FC<MobileThumbBarProps> = ({
         <div className="thumb-grid">
           <button 
             className="thumb-btn"
-            onClick={() => setIsDrawerOpen(true)}
+            onClick={() => { soundEngine.playClick(400); setIsDrawerOpen(true); }}
             aria-label="Сменить архетип"
           >
             <Palette size={20} />
@@ -44,7 +44,7 @@ export const MobileThumbBar: React.FC<MobileThumbBarProps> = ({
 
           <button 
             className="thumb-btn"
-            onClick={onReplayIntro}
+            onClick={() => { soundEngine.playClick(500); onReplayIntro(); }}
             aria-label="3D Интро"
           >
             <Play size={20} />
@@ -53,7 +53,7 @@ export const MobileThumbBar: React.FC<MobileThumbBarProps> = ({
 
           <button 
             className="thumb-btn primary-cta"
-            onClick={onOpenOrder}
+            onClick={() => { soundEngine.playClick(600); onOpenOrder(); }}
             aria-label="Заказать сайт"
           >
             <Sparkles size={20} />
@@ -62,7 +62,7 @@ export const MobileThumbBar: React.FC<MobileThumbBarProps> = ({
 
           <button 
             className="thumb-btn"
-            onClick={onOpenDownload}
+            onClick={() => { soundEngine.playClick(450); onOpenDownload(); }}
             aria-label="Скачать"
           >
             <Download size={20} />
@@ -71,7 +71,7 @@ export const MobileThumbBar: React.FC<MobileThumbBarProps> = ({
 
           <button 
             className="thumb-btn"
-            onClick={onOpenVault}
+            onClick={() => { soundEngine.playClick(520); onOpenVault(); }}
             aria-label="Хранилище"
           >
             <FolderDown size={20} />
@@ -124,11 +124,11 @@ export const MobileThumbBar: React.FC<MobileThumbBarProps> = ({
           left: 0;
           right: 0;
           z-index: 99999;
-          background: rgba(8, 9, 12, 0.92);
-          backdrop-filter: blur(18px);
+          background: rgba(6, 7, 10, 0.94);
+          backdrop-filter: blur(20px);
           border-top: var(--border-width) solid var(--border);
           padding-bottom: env(safe-area-inset-bottom, 0px);
-          box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
+          box-shadow: 0 -10px 30px rgba(0,0,0,0.85);
         }
         @media (max-width: 860px) {
           .mobile-thumb-bar { display: block; }
@@ -168,8 +168,8 @@ export const MobileThumbBar: React.FC<MobileThumbBarProps> = ({
         .drawer-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0,0,0,0.75);
-          backdrop-filter: blur(10px);
+          background: rgba(0,0,0,0.8);
+          backdrop-filter: blur(12px);
           z-index: 100000;
           display: flex;
           align-items: flex-end;
@@ -191,7 +191,7 @@ export const MobileThumbBar: React.FC<MobileThumbBarProps> = ({
         .drawer-handle {
           width: 40px;
           height: 4px;
-          background: rgba(255,255,255,0.2);
+          background: rgba(255,255,255,0.25);
           border-radius: 2px;
           margin: 0 auto 16px;
         }

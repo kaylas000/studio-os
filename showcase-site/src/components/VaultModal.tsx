@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { UploadCloud, FolderCheck, FileCode, CheckCircle, Music, Box, Type, Eye } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { soundEngine } from '../audio/WebAudioEngine';
 
 interface VaultModalProps {
   isOpen: boolean;
@@ -20,7 +21,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
   const [vaultItems, setVaultItems] = useState<VaultItem[]>([
     { name: 'universal-light-cone.glsl', category: 'shaders', size: '4.2 KB', addedTime: 'Сегодня, 14:20' },
     { name: 'cinematic-impact-sub.wav', category: 'sounds', size: '480 KB', addedTime: 'Сегодня, 13:10' },
-    { name: 'luxury-shield-badge.glb', category: '3d-models', size: '1.8 MB', addedTime: 'Вчера, 19:40' }
+    { name: 'luxury-shield-monolith.glb', category: '3d-models', size: '1.8 MB', addedTime: 'Вчера, 19:40' }
   ]);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
@@ -29,6 +30,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
   const handleFiles = (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
+    soundEngine.playWhoosh();
     const newItems: VaultItem[] = [];
 
     Array.from(files).forEach(file => {
@@ -127,7 +129,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
           border: 2px dashed var(--border-strong);
           border-radius: var(--radius-md);
           background: var(--bg-primary);
-          padding: 36px 20px;
+          padding: clamp(24px, 4vw, 36px) 20px;
           text-align: center;
           transition: all 0.2s;
           display: flex;
@@ -159,7 +161,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
           margin-bottom: 20px;
         }
         .vault-list-section h4 {
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           font-family: var(--font-mono);
           color: var(--text-secondary);
           margin-bottom: 12px;

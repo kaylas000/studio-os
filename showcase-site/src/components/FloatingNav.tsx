@@ -1,6 +1,6 @@
 // showcase-site/src/components/FloatingNav.tsx
 import React, { useState, useEffect } from 'react';
-import { Download, Sparkles, FolderDown, Volume2, VolumeX, Eye, Terminal } from 'lucide-react';
+import { Download, Sparkles, FolderDown, Volume2, VolumeX, Eye } from 'lucide-react';
 import { soundEngine } from '../audio/WebAudioEngine';
 
 interface FloatingNavProps {

@@ -1,11 +1,11 @@
 // showcase-site/src/sections/02-AnimationPipelineSection.tsx
 import React from 'react';
-import { Film, Eye, Download, Sparkles, Layers, Sliders } from 'lucide-react';
+import { Film, Download } from 'lucide-react';
 import { AppleSequenceScrubber } from '../components/AppleSequenceScrubber';
 
 export const AnimationPipelineSection: React.FC<{ onDownload: () => void }> = ({ onDownload }) => {
   return (
-    <section className="section-block" id="animations">
+    <section className="section" id="animations">
       <div className="container">
         <div className="section-tagline">
           <Film size={14} />
@@ -19,12 +19,10 @@ export const AnimationPipelineSection: React.FC<{ onDownload: () => void }> = ({
         </p>
 
         <div className="anim-showcase-grid">
-          {/* Apple Image Sequence Scrubber Canvas */}
           <div className="anim-viewport-card">
             <AppleSequenceScrubber onDownload={onDownload} />
           </div>
 
-          {/* Post-Processing Controls & Architecture */}
           <div className="anim-controls-card">
             <h3>🎛️ Архитектура кинематографичного кадра</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '16px' }}>

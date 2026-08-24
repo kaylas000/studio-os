@@ -1,16 +1,16 @@
-// showcase-site/src/components/HollywoodIntroOverlay.tsx
+// showcase-site/src/components/HollywoodCinematicIntro.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { Volume2, VolumeX, FastForward, Sparkles } from 'lucide-react';
 import { soundEngine } from '../audio/WebAudioEngine';
 
-interface HollywoodIntroOverlayProps {
+interface HollywoodIntroProps {
   onIntroComplete: () => void;
   forcePlay?: boolean;
 }
 
-export const HollywoodIntroOverlay: React.FC<HollywoodIntroOverlayProps> = ({
+export const HollywoodCinematicIntro: React.FC<HollywoodIntroProps> = ({
   onIntroComplete,
   forcePlay = false
 }) => {
@@ -27,7 +27,7 @@ export const HollywoodIntroOverlay: React.FC<HollywoodIntroOverlayProps> = ({
 
   useEffect(() => {
     // Check if user already saw the intro in this session unless forcePlay
-    if (!forcePlay && sessionStorage.getItem('studio_intro_seen') === 'true') {
+    if (!forcePlay && typeof window !== 'undefined' && sessionStorage.getItem('studio_intro_seen') === 'true') {
       setIsVisible(false);
       onIntroComplete();
       return;
@@ -52,8 +52,8 @@ export const HollywoodIntroOverlay: React.FC<HollywoodIntroOverlayProps> = ({
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // Particle Studio Insignia Assembly
-    const particleCount = 6000;
+    // Particle Studio Insignia Assembly (Guide 5)
+    const particleCount = 6500;
     const geometry = new THREE.BufferGeometry();
     const startPositions = new Float32Array(particleCount * 3);
     const targetPositions = new Float32Array(particleCount * 3);
@@ -64,7 +64,7 @@ export const HollywoodIntroOverlay: React.FC<HollywoodIntroOverlayProps> = ({
 
     for (let i = 0; i < particleCount; i++) {
       // Start pos: exploded in outer sphere
-      const r = 25 + Math.random() * 20;
+      const r = 25 + Math.random() * 25;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
 
@@ -76,9 +76,9 @@ export const HollywoodIntroOverlay: React.FC<HollywoodIntroOverlayProps> = ({
       currentPositions[i * 3 + 1] = startPositions[i * 3 + 1];
       currentPositions[i * 3 + 2] = startPositions[i * 3 + 2];
 
-      // Target pos: Concentric geometric rings + Studio Monolith
-      const angle = (i / particleCount) * Math.PI * 8;
-      const ringRadius = 3 + (i % 6) * 1.5;
+      // Target pos: Concentric geometric rings + Monolith
+      const angle = (i / particleCount) * Math.PI * 10;
+      const ringRadius = 3 + (i % 7) * 1.4;
       targetPositions[i * 3] = Math.cos(angle) * ringRadius + (Math.random() - 0.5) * 0.4;
       targetPositions[i * 3 + 1] = Math.sin(angle) * ringRadius + (Math.random() - 0.5) * 0.4;
       targetPositions[i * 3 + 2] = (Math.random() - 0.5) * 2;
@@ -103,14 +103,14 @@ export const HollywoodIntroOverlay: React.FC<HollywoodIntroOverlayProps> = ({
     const points = new THREE.Points(geometry, material);
     scene.add(points);
 
-    // Master Timeline for Hollywood Animation Sequence
+    // Master Timeline for Hollywood Animation Sequence (Guide 5)
     const tl = gsap.timeline({
       onComplete: () => {
         handleFinish();
       }
     });
 
-    // 1. Play deep cinematic sub-bass impact
+    // 1. Play deep cinematic sub-bass impact (Guide 1 & 5)
     soundEngine.playCinematicImpact();
 
     const progressObj = { val: 0 };
@@ -174,9 +174,11 @@ export const HollywoodIntroOverlay: React.FC<HollywoodIntroOverlayProps> = ({
 
     const handleFinish = () => {
       soundEngine.playWhoosh();
-      sessionStorage.setItem('studio_intro_seen', 'true');
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('studio_intro_seen', 'true');
+      }
 
-      // Cinema Curtains Transition Out
+      // Cinema Curtains Transition Out (Guide 5 - TransitionController)
       const exitTl = gsap.timeline({
         onComplete: () => {
           setIsVisible(false);
@@ -219,7 +221,9 @@ export const HollywoodIntroOverlay: React.FC<HollywoodIntroOverlayProps> = ({
   if (!isVisible) return null;
 
   const handleSkip = () => {
-    sessionStorage.setItem('studio_intro_seen', 'true');
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('studio_intro_seen', 'true');
+    }
     soundEngine.playWhoosh();
     setIsVisible(false);
     onIntroComplete();
@@ -290,13 +294,13 @@ export const HollywoodIntroOverlay: React.FC<HollywoodIntroOverlayProps> = ({
           left: 0;
           width: 100%;
           height: 50.5vh;
-          background: #050507;
+          background: #040507;
           z-index: 1000;
           pointer-events: none;
           box-shadow: 0 0 50px rgba(0,0,0,0.9);
         }
-        .curtain-top { top: 0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
-        .curtain-bottom { bottom: 0; border-top: 1px solid rgba(212, 175, 55, 0.2); }
+        .curtain-top { top: 0; border-bottom: 1px solid rgba(212, 175, 55, 0.25); }
+        .curtain-bottom { bottom: 0; border-top: 1px solid rgba(212, 175, 55, 0.25); }
         
         .intro-canvas {
           position: absolute;
@@ -368,7 +372,7 @@ export const HollywoodIntroOverlay: React.FC<HollywoodIntroOverlayProps> = ({
           bottom: calc(24px + env(safe-area-inset-bottom, 0px));
           left: 0;
           right: 0;
-          padding: 0 32px;
+          padding: 0 clamp(16px, 4vw, 36px);
           display: flex;
           justify-content: space-between;
           z-index: 20;
@@ -379,14 +383,14 @@ export const HollywoodIntroOverlay: React.FC<HollywoodIntroOverlayProps> = ({
           gap: 8px;
           padding: 10px 18px;
           min-height: 44px;
-          background: rgba(10, 10, 15, 0.7);
+          background: rgba(10, 10, 15, 0.75);
           border: 1px solid rgba(212, 175, 55, 0.3);
           border-radius: 30px;
           color: #ffffff;
           font-family: 'JetBrains Mono', monospace;
           font-size: 0.75rem;
           cursor: pointer;
-          backdrop-filter: blur(10px);
+          backdrop-filter: blur(12px);
           transition: all 0.25s ease;
         }
         .btn-intro-control:hover {

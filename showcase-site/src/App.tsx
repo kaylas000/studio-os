@@ -2,20 +2,26 @@
 import React, { useState, useEffect } from 'react';
 import { FloatingNav } from './components/FloatingNav';
 import { MobileThumbBar } from './components/MobileThumbBar';
-import { HollywoodIntroOverlay } from './components/HollywoodIntroOverlay';
+import { HollywoodCinematicIntro } from './components/HollywoodCinematicIntro';
 import { CinemaWebGLCanvas } from './cinema/CinemaWebGLCanvas';
 import { ScrollytellingAct } from './cinema/ScrollytellingAct';
 import { DownloadModal } from './components/DownloadModal';
 import { OrderModal } from './components/OrderModal';
 import { VaultModal } from './components/VaultModal';
+import { AnimationPipelineSection } from './sections/02-AnimationPipelineSection';
 import { AntiSlopScannerSection } from './sections/03-AntiSlopScannerSection';
+import { ArchetypeSandboxSection } from './sections/04-ArchetypeSandboxSection';
 import { SpacingRadarSection } from './sections/05-SpacingRadarSection';
 import { MobileLabSection } from './sections/06-MobileLabSection';
 import { SEOCrawlerSection } from './sections/07-SEOCrawlerSection';
 import { TextEngineeringSection } from './sections/08-TextEngineeringSection';
 import { ZeroBugMatrixSection } from './sections/09-ZeroBugMatrixSection';
+import { MonorepoArchitectureSection } from './sections/10-MonorepoArchitectureSection';
 import { Footer } from './sections/11-Footer';
 import { soundEngine } from './audio/WebAudioEngine';
+import { LenisScrollManager } from './engine/LenisScrollManager';
+import './engine/MobileDebugOverlay';
+import './engine/SpacingOverlayDebugger';
 
 export function App() {
   const [currentArchetype, setCurrentArchetype] = useState<string>('luxury-noir');
@@ -26,8 +32,10 @@ export function App() {
   const [isSpacingActive, setIsSpacingActive] = useState<boolean>(false);
   const [isIntroForced, setIsIntroForced] = useState<boolean>(false);
 
-  // Track global scroll progress for WebGL traveling & scrollytelling
+  // Initialize Lenis Smooth Scroll Manager (Guide 1)
   useEffect(() => {
+    const lenisManager = new LenisScrollManager();
+
     const handleScroll = () => {
       const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
       const current = window.scrollY;
@@ -36,7 +44,11 @@ export function App() {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      lenisManager.destroy();
+    };
   }, []);
 
   // Switch archetype on root HTML element
@@ -51,11 +63,7 @@ export function App() {
     soundEngine.playClick(560);
     setIsSpacingActive(prev => {
       const next = !prev;
-      if (next) {
-        document.body.classList.add('spacing-radar-active');
-      } else {
-        document.body.classList.remove('spacing-radar-active');
-      }
+      (window as any).__spacingOverlay?.toggle();
       return next;
     });
   };
@@ -77,7 +85,7 @@ export function App() {
 
   return (
     <div className="studio-app-root">
-      {/* 1. Fullscreen Cinema WebGL Shaders & 3D Core Layer */}
+      {/* 1. Fullscreen Cinema WebGL Shaders & 3D Core Layer (Guide 1 & 5) */}
       <CinemaWebGLCanvas
         scrollProgress={scrollProgress}
         activeArchetype={currentArchetype}
@@ -86,8 +94,8 @@ export function App() {
         vignette={true}
       />
 
-      {/* 2. Hollywood 3D Intro Experience */}
-      <HollywoodIntroOverlay
+      {/* 2. Hollywood 3D Intro Experience (Guide 5) */}
+      <HollywoodCinematicIntro
         forcePlay={isIntroForced}
         onIntroComplete={() => setIsIntroForced(false)}
       />
@@ -105,21 +113,26 @@ export function App() {
 
       {/* 4. Main Scrollytelling Storyline & Interactive System Labs */}
       <main className="main-content-layer">
-        {/* Pinned Scrollytelling Acts */}
-        <ScrollytellingAct
-          scrollProgress={scrollProgress}
-          onOpenDownload={handleOpenDownload}
-          onOpenOrder={handleOpenOrder}
-          onOpenVault={handleOpenVault}
-          onSelectArchetype={handleSelectArchetype}
-          currentArchetype={currentArchetype}
-        />
-
-        {/* Deep Interactive Working Labs for All Systems */}
-        <div className="interactive-labs-wrap">
-          <AntiSlopScannerSection 
-            onDownload={handleOpenDownload}
+        <div className="container">
+          {/* Pinned Scrollytelling Acts (Guide 1) */}
+          <ScrollytellingAct
+            scrollProgress={scrollProgress}
+            onOpenDownload={handleOpenDownload}
             onOpenOrder={handleOpenOrder}
+            onOpenVault={handleOpenVault}
+            onSelectArchetype={handleSelectArchetype}
+            currentArchetype={currentArchetype}
+          />
+        </div>
+
+        {/* Deep Interactive Working Labs for All 9 Systems */}
+        <div className="interactive-labs-wrap">
+          <AnimationPipelineSection onDownload={handleOpenDownload} />
+          <AntiSlopScannerSection onDownload={handleOpenDownload} onOpenOrder={handleOpenOrder} />
+          <ArchetypeSandboxSection
+            currentArchetype={currentArchetype}
+            onSelectArchetype={handleSelectArchetype}
+            onDownload={handleOpenDownload}
           />
           <SpacingRadarSection
             isOverlayActive={isSpacingActive}
@@ -130,6 +143,11 @@ export function App() {
           <SEOCrawlerSection onDownload={handleOpenDownload} />
           <TextEngineeringSection onDownload={handleOpenDownload} />
           <ZeroBugMatrixSection onDownload={handleOpenDownload} />
+          <MonorepoArchitectureSection
+            onOpenDownload={handleOpenDownload}
+            onOpenOrder={handleOpenOrder}
+            onOpenVault={handleOpenVault}
+          />
         </div>
       </main>
 
@@ -140,7 +158,7 @@ export function App() {
         onOpenVault={handleOpenVault}
       />
 
-      {/* 6. Mobile Thumb-Zone Navigation Bar */}
+      {/* 6. Mobile Thumb-Zone Navigation Bar (Guide 3) */}
       <MobileThumbBar
         currentArchetype={currentArchetype}
         onSelectArchetype={handleSelectArchetype}
@@ -165,7 +183,6 @@ export function App() {
           z-index: 10;
           display: flex;
           flex-direction: column;
-          gap: 40px;
         }
       `}</style>
     </div>
