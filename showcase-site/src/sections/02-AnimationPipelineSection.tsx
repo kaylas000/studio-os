@@ -1,30 +1,9 @@
 // showcase-site/src/sections/02-AnimationPipelineSection.tsx
-import React, { useState } from 'react';
+import React from 'react';
 import { Film, Eye, Download, Sparkles, Layers, Sliders } from 'lucide-react';
-import { ImageSequenceCanvas } from '../components/ImageSequenceCanvas';
-import { soundEngine } from '../audio/WebAudioEngine';
+import { AppleSequenceScrubber } from '../components/AppleSequenceScrubber';
 
 export const AnimationPipelineSection: React.FC<{ onDownload: () => void }> = ({ onDownload }) => {
-  const [scrollProgress, setScrollProgress] = useState(42);
-  const [bloomEnabled, setBloomEnabled] = useState(true);
-  const [grainEnabled, setGrainEnabled] = useState(true);
-  const [vignetteEnabled, setVignetteEnabled] = useState(true);
-
-  const toggleBloom = () => {
-    soundEngine.playClick(520);
-    setBloomEnabled(!bloomEnabled);
-  };
-
-  const toggleGrain = () => {
-    soundEngine.playClick(460);
-    setGrainEnabled(!grainEnabled);
-  };
-
-  const toggleVignette = () => {
-    soundEngine.playClick(400);
-    setVignetteEnabled(!vignetteEnabled);
-  };
-
   return (
     <section className="section-block" id="animations">
       <div className="container">
@@ -40,67 +19,41 @@ export const AnimationPipelineSection: React.FC<{ onDownload: () => void }> = ({
         </p>
 
         <div className="anim-showcase-grid">
-          {/* Real CGI Image Sequence Canvas Scrubber */}
+          {/* Apple Image Sequence Scrubber Canvas */}
           <div className="anim-viewport-card">
-            <ImageSequenceCanvas
-              progress={scrollProgress}
-              bloom={bloomEnabled}
-              grain={grainEnabled}
-              vignette={vignetteEnabled}
-            />
-
-            <div className="timeline-hud-meta">
-              <span>Слой 1: <strong>Baked 3D Sequence</strong></span>
-              <span>Слой 2: <strong>WebGL Shader Displacement</strong></span>
-              <span>Слой 3: <strong>DOM Typography</strong></span>
-            </div>
+            <AppleSequenceScrubber onDownload={onDownload} />
           </div>
 
           {/* Post-Processing Controls & Architecture */}
           <div className="anim-controls-card">
-            <h3>🎛️ Постобработка кадра (Post-Processing)</h3>
+            <h3>🎛️ Архитектура кинематографичного кадра</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '16px' }}>
               80% кинематографичного ощущения создается постобработкой: мягким свечением линз, пленочным зерном и цветокоррекцией.
             </p>
 
-            <div className="toggle-list">
-              <div className="toggle-item">
+            <div className="architecture-box">
+              <div className="arch-layer">
+                <span className="layer-tag">Слой 1</span>
                 <div>
-                  <strong>UnrealBloomPass (Свечение)</strong>
-                  <p>Эмуляция переотражений в оптике кинокамеры</p>
+                  <strong>Baked 3D Sequence / Video</strong>
+                  <p>Фотореалистичный контент из Blender/C4D с честным motion blur</p>
                 </div>
-                <button 
-                  className={`btn-toggle ${bloomEnabled ? 'on' : ''}`}
-                  onClick={toggleBloom}
-                >
-                  {bloomEnabled ? 'ON' : 'OFF'}
-                </button>
               </div>
 
-              <div className="toggle-item">
+              <div className="arch-layer">
+                <span className="layer-tag">Слой 2</span>
                 <div>
-                  <strong>Film Grain (Пленочное зерно)</strong>
-                  <p>Убирает цифровую стерильность и искусственность CGI</p>
+                  <strong>Живой WebGL поверх</strong>
+                  <p>Частицы, курсор-эффекты и шейдерные волны (mix-blend-mode: screen)</p>
                 </div>
-                <button 
-                  className={`btn-toggle ${grainEnabled ? 'on' : ''}`}
-                  onClick={toggleGrain}
-                >
-                  {grainEnabled ? 'ON' : 'OFF'}
-                </button>
               </div>
 
-              <div className="toggle-item">
+              <div className="arch-layer">
+                <span className="layer-tag">Слой 3</span>
                 <div>
-                  <strong>Vignette & Color Grading</strong>
-                  <p>Фокусировка внимания зрителя к центру экрана</p>
+                  <strong>DOM + CSS типографика</strong>
+                  <p>Доступность, SEO, читаемость с GSAP SplitText анимацией</p>
                 </div>
-                <button 
-                  className={`btn-toggle ${vignetteEnabled ? 'on' : ''}`}
-                  onClick={toggleVignette}
-                >
-                  {vignetteEnabled ? 'ON' : 'OFF'}
-                </button>
               </div>
             </div>
 
@@ -138,57 +91,39 @@ master.to(imageSeq, { frame: 150, snap: 'frame', onUpdate: render });`}</code>
           background: var(--bg-surface);
           border: var(--border-width) solid var(--border);
           border-radius: var(--radius-md);
-          padding: 24px;
+          padding: clamp(16px, 3vw, 24px);
         }
-        .timeline-hud-meta {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: space-between;
-          gap: 8px;
-          margin-top: 14px;
-          font-family: var(--font-mono);
-          font-size: 0.72rem;
-          color: var(--text-secondary);
-        }
-        .timeline-hud-meta strong {
-          color: var(--accent);
-        }
-        .toggle-list {
+        .architecture-box {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 10px;
           margin-bottom: 16px;
         }
-        .toggle-item {
+        .arch-layer {
           display: flex;
-          align-items: center;
-          justify-content: space-between;
+          align-items: flex-start;
+          gap: 12px;
           padding: 10px 14px;
           background: var(--bg-primary);
           border: var(--border-width) solid var(--border);
           border-radius: var(--radius-sm);
         }
-        .toggle-item strong {
-          font-size: 0.88rem;
+        .layer-tag {
+          font-family: var(--font-mono);
+          font-size: 0.68rem;
+          color: var(--accent);
+          background: rgba(212, 175, 55, 0.1);
+          padding: 2px 6px;
+          border-radius: 4px;
+          white-space: nowrap;
         }
-        .toggle-item p {
+        .arch-layer strong {
+          font-size: 0.85rem;
+          display: block;
+        }
+        .arch-layer p {
           font-size: 0.75rem;
           color: var(--text-secondary);
-        }
-        .btn-toggle {
-          padding: 6px 14px;
-          font-family: var(--font-mono);
-          font-size: 0.75rem;
-          font-weight: bold;
-          border-radius: 4px;
-          background: #252830;
-          color: #888;
-          cursor: pointer;
-          min-width: 50px;
-        }
-        .btn-toggle.on {
-          background: var(--accent);
-          color: #000;
         }
         .code-snippet-box {
           background: var(--bg-primary);
@@ -196,7 +131,7 @@ master.to(imageSeq, { frame: 150, snap: 'frame', onUpdate: render });`}</code>
           border-radius: var(--radius-sm);
           padding: 12px;
           font-family: var(--font-mono);
-          font-size: 0.75rem;
+          font-size: 0.72rem;
           color: var(--text-secondary);
           overflow-x: auto;
         }
