@@ -4,6 +4,7 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  base: './', // Относительные пути для работы на GitHub Pages и любом хостинге
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
