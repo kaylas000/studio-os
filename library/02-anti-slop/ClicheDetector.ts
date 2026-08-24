@@ -30,7 +30,7 @@ export class ClicheDetector {
   ];
 
   private mediumBuzzwords: string[] = [
-    "инновационн",
+    "инновацион",
     "уникальн",
     "качественн",
     "профессиональн",
@@ -47,7 +47,7 @@ export class ClicheDetector {
 
     // 1. Critical cliches
     this.criticalCliches.forEach(phrase => {
-      const regex = new RegExp(phrase, 'gi');
+      const regex = new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
       const matches = text.match(regex);
       if (matches) {
         const penalty = matches.length * 20;
@@ -61,12 +61,12 @@ export class ClicheDetector {
       }
     });
 
-    // 2. Medium buzzwords
+    // 2. Medium buzzwords (handling Cyrillic & Latin correctly)
     this.mediumBuzzwords.forEach(word => {
-      const regex = new RegExp(`\\b${word}\\w*`, 'gi');
+      const regex = new RegExp(`(^|[^а-яёa-z0-9])${word}[а-яёa-z0-9]*`, 'gi');
       const matches = text.match(regex);
-      if (matches && matches.length > 1) {
-        const penalty = (matches.length - 1) * 8;
+      if (matches && matches.length >= 1) {
+        const penalty = matches.length * 10;
         score -= penalty;
         issues.push({
           type: 'BUZZWORD_OVERUSE',
