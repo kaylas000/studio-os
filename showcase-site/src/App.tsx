@@ -1,125 +1,198 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Header, Footer, NoiseLayer, Marquee, CtaBanner, MobileOrderBar } from "./sections/Chrome";
-import { Plate } from "./sections/Plate";
-import { Library } from "./sections/Library";
-import { Motion } from "./sections/Motion";
-import { Rules } from "./sections/Rules";
-import { Workflow } from "./sections/Workflow";
-import { Control } from "./sections/Control";
-import { CineLine } from "./sections/CineLine";
-import { SpacingControl } from "./sections/SpacingControl";
-import { MobilePerfect } from "./sections/MobilePerfect";
-import { ValidatorSection } from "./sections/ValidatorSection";
-import { Projects } from "./sections/Projects";
-import { Intake } from "./sections/Intake";
-import { Seo } from "./sections/Seo";
-import { Variance } from "./sections/Variance";
-import { QaFortress } from "./sections/QaFortress";
-import { IntroOverlay } from "./components/IntroOverlay";
-import { PRESET_ORDER, type IntroPreset } from "./lib/intro";
-import { initSmooth, destroySmooth, scrollToId } from "./lib/smooth";
+// showcase-site/src/App.tsx
+import React, { useState, useEffect } from 'react';
+import { FloatingNav } from './components/FloatingNav';
+import { MobileThumbBar } from './components/MobileThumbBar';
+import { HollywoodCinematicIntro } from './components/HollywoodCinematicIntro';
+import { CinemaWebGLCanvas } from './cinema/CinemaWebGLCanvas';
+import { EditorialHero } from './components/EditorialHero';
+import { PentagramProjectIndex } from './components/PentagramProjectIndex';
+import { DownloadModal } from './components/DownloadModal';
+import { OrderModal } from './components/OrderModal';
+import { VaultModal } from './components/VaultModal';
+import { AnimationPipelineSection } from './sections/02-AnimationPipelineSection';
+import { AntiSlopScannerSection } from './sections/03-AntiSlopScannerSection';
+import { ArchetypeSandboxSection } from './sections/04-ArchetypeSandboxSection';
+import { SpacingRadarSection } from './sections/05-SpacingRadarSection';
+import { MobileLabSection } from './sections/06-MobileLabSection';
+import { SEOCrawlerSection } from './sections/07-SEOCrawlerSection';
+import { TextEngineeringSection } from './sections/08-TextEngineeringSection';
+import { ZeroBugMatrixSection } from './sections/09-ZeroBugMatrixSection';
+import { MonorepoArchitectureSection } from './sections/10-MonorepoArchitectureSection';
+import { Footer } from './sections/11-Footer';
+import { soundEngine } from './audio/WebAudioEngine';
+import { LenisScrollEngine } from './engine/LenisScrollEngine';
+import './engine/MobileDebugOverlay';
+import './engine/SpacingOverlayDebugger';
 
-const SEEN_KEY = "ceh-intro-seen";
-const IDX_KEY = "ceh-intro-preset";
+export function App() {
+  const [currentArchetype, setCurrentArchetype] = useState<string>('luxury-noir');
+  const [scrollProgress, setScrollProgress] = useState<number>(0);
+  const [isDownloadOpen, setIsDownloadOpen] = useState<boolean>(false);
+  const [isOrderOpen, setIsOrderOpen] = useState<boolean>(false);
+  const [isVaultOpen, setIsVaultOpen] = useState<boolean>(false);
+  const [isSpacingActive, setIsSpacingActive] = useState<boolean>(false);
+  const [isIntroForced, setIsIntroForced] = useState<boolean>(false);
 
-export default function App() {
-  const [intro, setIntro] = useState<{ preset: IntroPreset; token: number } | null>(null);
-  const presetIdx = useRef(0);
-
-  const playIntro = useCallback(() => {
-    const next = PRESET_ORDER[presetIdx.current % PRESET_ORDER.length];
-    presetIdx.current += 1;
-    try {
-      sessionStorage.setItem(SEEN_KEY, "1");
-      sessionStorage.setItem(IDX_KEY, String(presetIdx.current));
-    } catch {
-      /* приватный режим — просто показываем */
-    }
-    setIntro({ preset: next, token: Date.now() });
-  }, []);
-
-  /* первый визит в сессии: заставка; повторные — сразу студия (SK-06) */
+  // Initialize Lenis Smooth Scroll Manager (Guide 1)
   useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let seen = false;
-    try {
-      seen = sessionStorage.getItem(SEEN_KEY) === "1";
-      presetIdx.current = Number(sessionStorage.getItem(IDX_KEY) ?? 0) || 0;
-    } catch {
-      seen = false;
-    }
-    if (!reduced && !seen) playIntro();
-  }, [playIntro]);
+    const lenisEngine = new LenisScrollEngine();
 
-  useEffect(() => {
-    initSmooth();
-    /* перехват якорных ссылок — плавный ход через Lenis */
-    const onClick = (e: MouseEvent) => {
-      const a = (e.target as HTMLElement).closest('a[href^="#"]');
-      if (!a) return;
-      const href = a.getAttribute("href");
-      if (!href || href.length < 2) return;
-      e.preventDefault();
-      scrollToId(href);
+    const handleScroll = () => {
+      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const current = window.scrollY;
+      const p = totalScroll > 0 ? Math.min(1, Math.max(0, current / totalScroll)) : 0;
+      setScrollProgress(p);
     };
-    document.addEventListener("click", onClick);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
     return () => {
-      document.removeEventListener("click", onClick);
-      destroySmooth();
+      window.removeEventListener('scroll', handleScroll);
+      lenisEngine.destroy();
     };
   }, []);
+
+  // Switch archetype on root HTML element
+  const handleSelectArchetype = (arch: string) => {
+    soundEngine.playClick(480);
+    setCurrentArchetype(arch);
+    document.documentElement.setAttribute('data-archetype', arch);
+  };
+
+  // Toggle Live Spacing Overlay
+  const handleToggleSpacing = () => {
+    soundEngine.playClick(560);
+    setIsSpacingActive(prev => {
+      const next = !prev;
+      (window as any).__spacingOverlay?.toggle();
+      return next;
+    });
+  };
+
+  const handleOpenDownload = () => {
+    soundEngine.playClick(500);
+    setIsDownloadOpen(true);
+  };
+
+  const handleOpenOrder = () => {
+    soundEngine.playClick(600);
+    setIsOrderOpen(true);
+  };
+
+  const handleOpenVault = () => {
+    soundEngine.playClick(520);
+    setIsVaultOpen(true);
+  };
 
   return (
-    <div className="bg-paper font-body text-ink">
-      <NoiseLayer />
-      <Header onIntro={playIntro} />
-      <main>
-        <Plate />
-        <Library />
-        <Motion />
-        <Marquee
-          items={[
-            "К-04: приём без источника — слоп",
-            "К-05: easing только из реестра",
-            "Q-01: 1–3 рецепта на страницу",
-            "B-02: браузерные дефолты запрещены",
-            "К-11: удачное возвращается в архив",
-            "SK-06: заставка ≤4с, skip обязателен",
-          ]}
-          dark
+    <div className="studio-app-root">
+      {/* 1. Fullscreen Cinema WebGL Shaders & 3D Core Layer (Guide 1 & 5) */}
+      <CinemaWebGLCanvas
+        scrollProgress={scrollProgress}
+        activeArchetype={currentArchetype}
+        bloom={true}
+        grain={true}
+        vignette={true}
+      />
+
+      {/* 2. Hollywood 3D Intro Experience (Guide 5) */}
+      <HollywoodCinematicIntro
+        forcePlay={isIntroForced}
+        onIntroComplete={() => setIsIntroForced(false)}
+      />
+
+      {/* 3. Floating Navigation */}
+      <FloatingNav
+        currentArchetype={currentArchetype}
+        onSelectArchetype={handleSelectArchetype}
+        onOpenDownload={handleOpenDownload}
+        onOpenOrder={handleOpenOrder}
+        onOpenVault={handleOpenVault}
+        onToggleSpacingOverlay={handleToggleSpacing}
+        isSpacingActive={isSpacingActive}
+      />
+
+      {/* 4. Main Master Narrative & Interactive System Labs */}
+      <main className="main-content-layer">
+        {/* Readymag / Pentagram 10vw Poster Hero */}
+        <EditorialHero
+          onOpenDownload={handleOpenDownload}
+          onOpenOrder={handleOpenOrder}
+          onOpenVault={handleOpenVault}
         />
-        <Rules />
-        <Workflow />
-        <Control />
-        <CineLine />
-        <SpacingControl />
-        <MobilePerfect />
-        <Marquee
-          items={[
-            "тап-зона ≥44px",
-            "инпуты ≥16px — без iOS-зума",
-            "viewport-fit=cover",
-            "sweep: 22 вьюпорта",
-            "перф-бюджет: LCP 2.5с",
-          ]}
-        />
-        <ValidatorSection />
-        <Projects />
-        <Intake />
-        <Seo />
-        <Variance />
-        <QaFortress />
-        <CtaBanner />
+
+        {/* Deep Interactive Working Labs for All 9 Systems */}
+        <div className="interactive-labs-wrap">
+          <AnimationPipelineSection onDownload={handleOpenDownload} />
+          
+          <AntiSlopScannerSection 
+            onDownload={handleOpenDownload} 
+            onOpenOrder={handleOpenOrder} 
+          />
+
+          <ArchetypeSandboxSection
+            currentArchetype={currentArchetype}
+            onSelectArchetype={handleSelectArchetype}
+            onDownload={handleOpenDownload}
+          />
+
+          <PentagramProjectIndex onOpenOrder={handleOpenOrder} />
+
+          <SpacingRadarSection
+            isOverlayActive={isSpacingActive}
+            onToggleOverlay={handleToggleSpacing}
+            onDownload={handleOpenDownload}
+          />
+
+          <MobileLabSection onDownload={handleOpenDownload} />
+          <SEOCrawlerSection onDownload={handleOpenDownload} />
+          <TextEngineeringSection onDownload={handleOpenDownload} />
+          <ZeroBugMatrixSection onDownload={handleOpenDownload} />
+          
+          <MonorepoArchitectureSection
+            onOpenDownload={handleOpenDownload}
+            onOpenOrder={handleOpenOrder}
+            onOpenVault={handleOpenVault}
+          />
+        </div>
       </main>
-      <Footer />
-      <MobileOrderBar />
-      {intro && (
-        <IntroOverlay
-          key={intro.token}
-          preset={intro.preset}
-          onDone={() => setIntro(null)}
-        />
-      )}
+
+      {/* 5. Footer */}
+      <Footer
+        onOpenDownload={handleOpenDownload}
+        onOpenOrder={handleOpenOrder}
+        onOpenVault={handleOpenVault}
+      />
+
+      {/* 6. Mobile Thumb-Zone Navigation Bar (Guide 3) */}
+      <MobileThumbBar
+        currentArchetype={currentArchetype}
+        onSelectArchetype={handleSelectArchetype}
+        onOpenDownload={handleOpenDownload}
+        onOpenOrder={handleOpenOrder}
+        onOpenVault={handleOpenVault}
+        onReplayIntro={() => setIsIntroForced(true)}
+      />
+
+      {/* 7. Modals */}
+      <DownloadModal isOpen={isDownloadOpen} onClose={() => setIsDownloadOpen(false)} />
+      <OrderModal isOpen={isOrderOpen} onClose={() => setIsOrderOpen(false)} />
+      <VaultModal isOpen={isVaultOpen} onClose={() => setIsVaultOpen(false)} />
+
+      <style>{`
+        .main-content-layer {
+          position: relative;
+          z-index: 10;
+        }
+        .interactive-labs-wrap {
+          position: relative;
+          z-index: 10;
+          display: flex;
+          flex-direction: column;
+        }
+      `}</style>
     </div>
   );
 }
+
+export default App;

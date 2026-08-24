@@ -1,6 +1,6 @@
 // showcase-site/src/engine/MobileDebugOverlay.ts
 /**
- * MobileDebugOverlay — Живой инструмент отладки мобильной адаптации (из Руководства 3)
+ * MobileDebugOverlay — Живой инструмент отладки мобильной адаптации (Руководство 3)
  * Активируется тройным тапом по экрану на телефоне или вызовом enable()
  */
 
@@ -53,7 +53,6 @@ export class MobileDebugOverlay {
     const scrollWidth = document.documentElement.scrollWidth;
     const hasHorizontalOverflow = scrollWidth > docWidth;
 
-    // Check touch targets
     const buttons = document.querySelectorAll<HTMLElement>('button, a, input, select');
     let smallTargets = 0;
     buttons.forEach(el => {
@@ -63,7 +62,7 @@ export class MobileDebugOverlay {
 
     const html = `
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:8px; margin-bottom:8px;">
-        <strong style="color:#d4af37;">📱 STUDIO OS Mobile Diagnostics</strong>
+        <strong style="color:#d4af37;">📱 STUDIO OS Mobile Diagnostics (Руководство 3)</strong>
         <button onclick="window.__mobileDebug?.disable()" style="color:#aaa; background:none; border:none; font-size:16px; cursor:pointer;">✕</button>
       </div>
       <div style="margin-bottom:6px;">Вьюпорт: <strong>${window.innerWidth}x${window.innerHeight}px</strong> (DPR: ${window.devicePixelRatio}x)</div>
@@ -89,7 +88,6 @@ export class MobileDebugOverlay {
   }
 }
 
-// Global setup & triple-tap trigger (Guide 3)
 if (typeof window !== 'undefined') {
   (window as any).__mobileDebug = new MobileDebugOverlay();
   let tapCount = 0;

@@ -1,6 +1,6 @@
 // showcase-site/src/engine/SpacingOverlayDebugger.ts
 /**
- * SpacingOverlayDebugger — Инструмент визуального контроля отступов (из Руководства 4)
+ * SpacingOverlayDebugger — Инструмент визуального контроля отступов (Руководство 4)
  * Активируется горячей клавишей Ctrl+Shift+S или кнопкой в шапке
  */
 
@@ -62,7 +62,6 @@ export class SpacingOverlayDebugger {
   }
 }
 
-// Global hotkey Ctrl+Shift+S (Руководство 4)
 if (typeof window !== 'undefined') {
   (window as any).__spacingOverlay = new SpacingOverlayDebugger();
 

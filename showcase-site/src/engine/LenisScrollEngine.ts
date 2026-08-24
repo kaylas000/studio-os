@@ -1,11 +1,11 @@
-// showcase-site/src/engine/LenisScrollManager.ts
+// showcase-site/src/engine/LenisScrollEngine.ts
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export class LenisScrollManager {
+export class LenisScrollEngine {
   private lenis: Lenis | null = null;
 
   constructor() {
@@ -23,7 +23,6 @@ export class LenisScrollManager {
       touchMultiplier: 1.5
     });
 
-    // Synchronize Lenis with GSAP ScrollTrigger (Guide 1)
     this.lenis.on('scroll', ScrollTrigger.update);
 
     gsap.ticker.add((time: number) => {

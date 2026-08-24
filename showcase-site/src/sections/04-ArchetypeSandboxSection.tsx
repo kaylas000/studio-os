@@ -15,7 +15,7 @@ export const ArchetypeSandboxSection: React.FC<ArchetypeSectionProps> = ({
   onDownload
 }) => {
   return (
-    <section className="section-block" id="archetypes">
+    <section className="section" id="archetypes">
       <div className="container">
         <div className="section-tagline">
           <Palette size={14} />

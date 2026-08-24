@@ -277,7 +277,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
           height: 60px;
           border-radius: 50%;
           background: #00ff88;
-          color: #000;
+          color: #00ff88;
+          background: rgba(0, 255, 136, 0.15);
+          border: 2px solid #00ff88;
           font-size: 30px;
           font-weight: bold;
           display: flex;

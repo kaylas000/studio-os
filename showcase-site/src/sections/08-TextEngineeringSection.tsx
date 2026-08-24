@@ -14,7 +14,7 @@ export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ o
   const readReport = ReadabilityAnalyzer.analyze(copyText);
 
   return (
-    <section className="section-block" id="copywriting">
+    <section className="section" id="copywriting">
       <div className="container">
         <div className="section-tagline">
           <Type size={14} />
@@ -28,7 +28,6 @@ export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ o
         </p>
 
         <div className="copy-layout-grid">
-          {/* Live Copy Analyzer Box */}
           <div className="copy-editor-card">
             <div className="copy-editor-head">
               <h3>✍️ Анализатор фактуры и читаемости</h3>
@@ -42,7 +41,6 @@ export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ o
               rows={4}
             />
 
-            {/* Metrics HUD */}
             <div className="copy-metrics-bar">
               <div className="metric-box">
                 <span className="m-val">{factReport.score}/100</span>
@@ -62,7 +60,6 @@ export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ o
               </div>
             </div>
 
-            {/* Facts Extracted Chips */}
             {factReport.factsFound.length > 0 && (
               <div className="extracted-facts-box">
                 <span className="ef-title">Твёрдые доказательства (Facts):</span>
@@ -75,7 +72,6 @@ export const TextEngineeringSection: React.FC<{ onDownload: () => void }> = ({ o
             )}
           </div>
 
-          {/* Tone of Voice Matrix & Zod Contracts Card */}
           <div className="tov-card">
             <h3>🎭 Калибровка Tone of Voice (ToV)</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '14px' }}>

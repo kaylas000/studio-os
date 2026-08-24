@@ -1,6 +1,6 @@
 // showcase-site/src/components/AntiSlopLiveValidator.tsx
 import React, { useState } from 'react';
-import { ShieldAlert, AlertTriangle, CheckCircle2, RefreshCw, Download, Sparkles, Sliders } from 'lucide-react';
+import { ShieldAlert, AlertTriangle, CheckCircle2, RefreshCw, Download, Sparkles } from 'lucide-react';
 import { ClicheDetector } from '@library/02-anti-slop/ClicheDetector';
 import { GradientSlopDetector } from '@library/02-anti-slop/GradientSlopDetector';
 import { ConstraintInjector, CreativeConstraint } from '@library/02-anti-slop/ConstraintInjector';

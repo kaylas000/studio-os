@@ -27,11 +27,11 @@ const MODULES_REGISTRY: ModuleInfo[] = [
     files: [
       {
         name: 'TimelineEngine.ts',
-        content: `// STUDIO OS: Master Timeline Engine\nimport gsap from 'gsap';\nexport class MasterTimelineEngine {\n  private master = gsap.timeline({ paused: true });\n  public createScene(id: string) { return gsap.timeline(); }\n  public scrubTo(p: number) { this.master.progress(p); }\n}`
+        content: `// STUDIO OS: Master Timeline Engine (Guide 1)\nimport gsap from 'gsap';\nexport class MasterTimelineEngine {\n  private master = gsap.timeline({ paused: true });\n  public createScene(id: string) { return gsap.timeline(); }\n  public scrubTo(p: number) { this.master.progress(p); }\n}`
       },
       {
         name: 'AppleSequenceScrubber.ts',
-        content: `// STUDIO OS: Apple-style Image Sequence Scrubber\nexport class ImageSequenceScrubber {\n  constructor(public canvas: HTMLCanvasElement, public frameCount: number) {}\n}`
+        content: `// STUDIO OS: Apple-style Image Sequence Scrubber (Guide 1)\nexport class ImageSequenceScrubber {\n  constructor(public canvas: HTMLCanvasElement, public frameCount: number) {}\n}`
       }
     ]
   },
@@ -43,11 +43,11 @@ const MODULES_REGISTRY: ModuleInfo[] = [
     files: [
       {
         name: 'ClicheDetector.ts',
-        content: `// STUDIO OS: ClicheDetector.ts\nexport class ClicheDetector {\n  public analyze(text: string) { return { score: 95, verdict: "Оригинал" }; }\n}`
+        content: `// STUDIO OS: ClicheDetector.ts (Guide 2)\nexport class ClicheDetector {\n  public analyze(text: string) { return { score: 95, verdict: "Оригинал" }; }\n}`
       },
       {
         name: 'GradientSlopDetector.ts',
-        content: `// STUDIO OS: GradientSlopDetector.ts\nexport class GradientSlopDetector {\n  public checkGradient(c1: string, c2: string) { return { isSlop: false }; }\n}`
+        content: `// STUDIO OS: GradientSlopDetector.ts (Guide 2)\nexport class GradientSlopDetector {\n  public checkGradient(c1: string, c2: string) { return { isSlop: false }; }\n}`
       }
     ]
   },
@@ -59,7 +59,7 @@ const MODULES_REGISTRY: ModuleInfo[] = [
     files: [
       {
         name: 'fluid-system.css',
-        content: `/* Fluid Typography & Touch-Targets */\n:root {\n  --fs-hero: clamp(2.5rem, 1.5rem + 5vw, 6rem);\n  --touch-target-min: 44px;\n}`
+        content: `/* Fluid Typography & Touch-Targets (Guide 3) */\n:root {\n  --fs-hero: clamp(2.5rem, 1.5rem + 5vw, 6rem);\n  --touch-target-min: 44px;\n}`
       },
       {
         name: 'TouchTargetValidator.ts',
@@ -91,7 +91,7 @@ const MODULES_REGISTRY: ModuleInfo[] = [
     files: [
       {
         name: 'IntroEngine.ts',
-        content: `// STUDIO OS: Hollywood 3D Intro Engine\nimport * as THREE from 'three';\nexport class IntroEngine { constructor(options: any) {} }`
+        content: `// STUDIO OS: Hollywood 3D Intro Engine (Guide 5)\nimport * as THREE from 'three';\nexport class IntroEngine { constructor(options: any) {} }`
       }
     ]
   },
