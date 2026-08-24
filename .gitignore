@@ -27,3 +27,4 @@ dist-ssr
 coverage
 sweep-screenshots
 test-results
+.npm
