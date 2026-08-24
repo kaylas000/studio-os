@@ -4,7 +4,7 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/studio-os/', // Базовый путь для GitHub Pages https://kaylas000.github.io/studio-os/
+  base: './', // Относительные пути: работает и на /ceh-veb/, и на /studio-os/, и на локальном хосте
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
