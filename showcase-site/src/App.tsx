@@ -6,11 +6,11 @@ import { HollywoodCinematicIntro } from './components/HollywoodCinematicIntro';
 import { CinemaWebGLCanvas } from './cinema/CinemaWebGLCanvas';
 import { EditorialHero } from './components/EditorialHero';
 import { PentagramProjectIndex } from './components/PentagramProjectIndex';
+import { AntiSlopSuite } from './components/AntiSlopSuite';
 import { DownloadModal } from './components/DownloadModal';
 import { OrderModal } from './components/OrderModal';
 import { VaultModal } from './components/VaultModal';
 import { AnimationPipelineSection } from './sections/02-AnimationPipelineSection';
-import { AntiSlopScannerSection } from './sections/03-AntiSlopScannerSection';
 import { ArchetypeSandboxSection } from './sections/04-ArchetypeSandboxSection';
 import { SpacingRadarSection } from './sections/05-SpacingRadarSection';
 import { MobileLabSection } from './sections/06-MobileLabSection';
@@ -123,32 +123,45 @@ export function App() {
 
         {/* Deep Interactive Working Labs for All 9 Systems */}
         <div className="interactive-labs-wrap">
+          {/* System 01: Animation & Apple Image Sequence Scrubber */}
           <AnimationPipelineSection onDownload={handleOpenDownload} />
           
-          <AntiSlopScannerSection 
+          {/* System 02: Anti-Slop Complete Master Suite */}
+          <AntiSlopSuite 
             onDownload={handleOpenDownload} 
             onOpenOrder={handleOpenOrder} 
           />
 
+          {/* System 07: 5 Design Archetypes Playground */}
           <ArchetypeSandboxSection
             currentArchetype={currentArchetype}
             onSelectArchetype={handleSelectArchetype}
             onDownload={handleOpenDownload}
           />
 
+          {/* Pentagram Dense Project Index */}
           <PentagramProjectIndex onOpenOrder={handleOpenOrder} />
 
+          {/* System 04: Spacing Control Radar */}
           <SpacingRadarSection
             isOverlayActive={isSpacingActive}
             onToggleOverlay={handleToggleSpacing}
             onDownload={handleOpenDownload}
           />
 
+          {/* System 03: Mobile-Perfect Lab */}
           <MobileLabSection onDownload={handleOpenDownload} />
+
+          {/* System 06: SEO-by-Design */}
           <SEOCrawlerSection onDownload={handleOpenDownload} />
+
+          {/* System 08: Fact-First Copywriting */}
           <TextEngineeringSection onDownload={handleOpenDownload} />
+
+          {/* System 09: Zero-Bug Fortress & 60 FPS */}
           <ZeroBugMatrixSection onDownload={handleOpenDownload} />
           
+          {/* Studio Monorepo & Vault */}
           <MonorepoArchitectureSection
             onOpenDownload={handleOpenDownload}
             onOpenOrder={handleOpenOrder}
