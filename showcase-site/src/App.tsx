@@ -1,6 +1,8 @@
 // showcase-site/src/App.tsx
 import React, { useState, useEffect } from 'react';
 import { FloatingNav } from './components/FloatingNav';
+import { MobileThumbBar } from './components/MobileThumbBar';
+import { HollywoodIntroOverlay } from './components/HollywoodIntroOverlay';
 import { DownloadModal } from './components/DownloadModal';
 import { OrderModal } from './components/OrderModal';
 import { VaultModal } from './components/VaultModal';
@@ -15,6 +17,7 @@ import { TextEngineeringSection } from './sections/08-TextEngineeringSection';
 import { ZeroBugMatrixSection } from './sections/09-ZeroBugMatrixSection';
 import { MonorepoArchitectureSection } from './sections/10-MonorepoArchitectureSection';
 import { Footer } from './sections/11-Footer';
+import { soundEngine } from './audio/WebAudioEngine';
 
 export function App() {
   const [currentArchetype, setCurrentArchetype] = useState<string>('luxury-noir');
@@ -22,15 +25,19 @@ export function App() {
   const [isOrderOpen, setIsOrderOpen] = useState<boolean>(false);
   const [isVaultOpen, setIsVaultOpen] = useState<boolean>(false);
   const [isSpacingActive, setIsSpacingActive] = useState<boolean>(false);
+  const [isIntroForced, setIsIntroForced] = useState<boolean>(false);
+  const [isIntroComplete, setIsIntroComplete] = useState<boolean>(false);
 
   // Switch archetype on root HTML element
   const handleSelectArchetype = (arch: string) => {
+    soundEngine.playClick(480);
     setCurrentArchetype(arch);
     document.documentElement.setAttribute('data-archetype', arch);
   };
 
   // Toggle Live Spacing Overlay
   const handleToggleSpacing = () => {
+    soundEngine.playClick(560);
     setIsSpacingActive(prev => {
       const next = !prev;
       if (next) {
@@ -42,15 +49,43 @@ export function App() {
     });
   };
 
+  const handleOpenDownload = () => {
+    soundEngine.playClick(500);
+    setIsDownloadOpen(true);
+  };
+
+  const handleOpenOrder = () => {
+    soundEngine.playClick(600);
+    setIsOrderOpen(true);
+  };
+
+  const handleOpenVault = () => {
+    soundEngine.playClick(520);
+    setIsVaultOpen(true);
+  };
+
+  const handleReplayIntro = () => {
+    setIsIntroForced(true);
+  };
+
   return (
     <div className="studio-app-root">
+      {/* Hollywood 3D Intro Experience */}
+      <HollywoodIntroOverlay
+        forcePlay={isIntroForced}
+        onIntroComplete={() => {
+          setIsIntroComplete(true);
+          setIsIntroForced(false);
+        }}
+      />
+
       {/* Floating Header */}
       <FloatingNav
         currentArchetype={currentArchetype}
         onSelectArchetype={handleSelectArchetype}
-        onOpenDownload={() => setIsDownloadOpen(true)}
-        onOpenOrder={() => setIsOrderOpen(true)}
-        onOpenVault={() => setIsVaultOpen(true)}
+        onOpenDownload={handleOpenDownload}
+        onOpenOrder={handleOpenOrder}
+        onOpenVault={handleOpenVault}
         onToggleSpacingOverlay={handleToggleSpacing}
         isSpacingActive={isSpacingActive}
       />
@@ -58,39 +93,49 @@ export function App() {
       {/* Main Showcase Living Sections */}
       <main>
         <HeroIntroSection
-          onOpenDownload={() => setIsDownloadOpen(true)}
-          onOpenOrder={() => setIsOrderOpen(true)}
-          onOpenVault={() => setIsVaultOpen(true)}
+          onOpenDownload={handleOpenDownload}
+          onOpenOrder={handleOpenOrder}
+          onOpenVault={handleOpenVault}
         />
 
-        <AnimationPipelineSection onDownload={() => setIsDownloadOpen(true)} />
-        <AntiSlopScannerSection onDownload={() => setIsDownloadOpen(true)} />
+        <AnimationPipelineSection onDownload={handleOpenDownload} />
+        <AntiSlopScannerSection onDownload={handleOpenDownload} />
         <ArchetypeSandboxSection
           currentArchetype={currentArchetype}
           onSelectArchetype={handleSelectArchetype}
-          onDownload={() => setIsDownloadOpen(true)}
+          onDownload={handleOpenDownload}
         />
         <SpacingRadarSection
           isOverlayActive={isSpacingActive}
           onToggleOverlay={handleToggleSpacing}
-          onDownload={() => setIsDownloadOpen(true)}
+          onDownload={handleOpenDownload}
         />
-        <MobileLabSection onDownload={() => setIsDownloadOpen(true)} />
-        <SEOCrawlerSection onDownload={() => setIsDownloadOpen(true)} />
-        <TextEngineeringSection onDownload={() => setIsDownloadOpen(true)} />
-        <ZeroBugMatrixSection onDownload={() => setIsDownloadOpen(true)} />
+        <MobileLabSection onDownload={handleOpenDownload} />
+        <SEOCrawlerSection onDownload={handleOpenDownload} />
+        <TextEngineeringSection onDownload={handleOpenDownload} />
+        <ZeroBugMatrixSection onDownload={handleOpenDownload} />
         <MonorepoArchitectureSection
-          onOpenDownload={() => setIsDownloadOpen(true)}
-          onOpenOrder={() => setIsOrderOpen(true)}
-          onOpenVault={() => setIsVaultOpen(true)}
+          onOpenDownload={handleOpenDownload}
+          onOpenOrder={handleOpenOrder}
+          onOpenVault={handleOpenVault}
         />
       </main>
 
       {/* Footer */}
       <Footer
-        onOpenDownload={() => setIsDownloadOpen(true)}
-        onOpenOrder={() => setIsOrderOpen(true)}
-        onOpenVault={() => setIsVaultOpen(true)}
+        onOpenDownload={handleOpenDownload}
+        onOpenOrder={handleOpenOrder}
+        onOpenVault={handleOpenVault}
+      />
+
+      {/* Mobile Fixed Bottom Thumb Bar */}
+      <MobileThumbBar
+        currentArchetype={currentArchetype}
+        onSelectArchetype={handleSelectArchetype}
+        onOpenDownload={handleOpenDownload}
+        onOpenOrder={handleOpenOrder}
+        onOpenVault={handleOpenVault}
+        onReplayIntro={handleReplayIntro}
       />
 
       {/* Global Modals */}
