@@ -38,14 +38,19 @@ export async function auditProject({ projectDir, rootDir, strict = true }) {
     : {};
   const archetype = projectJson.archetype ?? 'cyber-tech';
 
-  const tsx = readSources(srcDir, (f) => /\.tsx?$/.test(f) && !f.endsWith('.d.ts'));
+  // .js/.jsx обязательны: тексты оффера регулярно лежат в src/data/*.js,
+  // и аудит, который смотрит только на .ts/.tsx, пропускает весь слоп мимо гейта.
+  const tsx = readSources(srcDir, (f) => /\.[cm]?[jt]sx?$/.test(f) && !f.endsWith('.d.ts'));
   const css = readSources(srcDir, (f) => f.endsWith('.css'));
   const htmlFiles = readSources(projectDir, (f) => f.endsWith('.html'));
   const allText = [
-    ...tsx.map((s) => ({ file: s.file, text: ClicheDetector.extractProse(s.code) })),
+    ...tsx.map((s) => {
+      const chunks = ClicheDetector.extractProseWithLines(s.code);
+      return { file: s.file, text: chunks.map((c) => c.text).join('\n'), proseLines: chunks.map((c) => c.line) };
+    }),
     ...readSources(srcDir, (f) => f.endsWith('.md')).map((s) => ({ file: s.file, text: s.code }))
   ]
-    .map((f) => ({ ...f, text: f.text.replace(/\s+/g, ' ').trim() }))
+    .map((f) => ({ ...f, text: f.text.replace(/[ \t]+/g, ' ').trim() }))
     .filter((f) => f.text.length > 24);
 
   // ── словарь анти-слопа: базовый + внешний из библиотеки ────────────────
@@ -124,6 +129,10 @@ export async function auditProject({ projectDir, rootDir, strict = true }) {
   // типографики не содержит — это нормально, clamp живёт в base-слое студии
   const combinedMobile = ViewportMatrix.auditStylesheet(cssCombined || '', '(весь css проекта)');
   const clampProject = combinedMobile.stats.clampRules > 0;
+  // NO_FLUID_TYPE в отдельном файле снимаем только если clamp() есть в проекте:
+  // генерируемый archetype.css держит палитру, типографика живёт в base-слое.
+  // Балл считаем по отфильтрованному списку — иначе таблица показывает 100,
+  // а в строке на одну ошибку меньше, чем в счёте.
   const mobileViolations = mobileReports
     .flatMap((r, idx) =>
       r.violations
@@ -132,7 +141,8 @@ export async function auditProject({ projectDir, rootDir, strict = true }) {
     )
     .concat(clampProject ? [] : combinedMobile.violations.filter((v) => v.rule === 'NO_FLUID_TYPE'));
   const mobileBlockers = mobileViolations.filter((v) => v.severity === 'block').length;
-  const mobileScore = mobileReports.length ? Math.min(...mobileReports.map((r) => r.score)) : 0;
+  const mobilePenalty = mobileViolations.reduce((sum, v) => sum + (v.severity === 'block' ? 18 : 7), 0);
+  const mobileScore = css.length ? Math.max(0, 100 - mobilePenalty) : 0;
   const touchRules = (cssCombined.match(/min-height\s*:\s*var\(--touch-target-min\)|min-height\s*:\s*4[4-9]px/gi) ?? []).length;
   checks.push({
     id: 'SYS-03',
@@ -196,10 +206,10 @@ export async function auditProject({ projectDir, rootDir, strict = true }) {
   }
 
   // ── 6. SYS-08 · копирайтинг-инженерия ────────────────────────────────────
-  const mergedText = allText.map((f) => f.text).join(' ');
+  const mergedText = allText.map((f) => f.text).join('\n');
   const facts = FactDensityScorer.calculate(mergedText);
   const readability = ReadabilityAnalyzer.analyze(mergedText);
-  const structure = StructureScanner.scan(allText.slice(0, 6).map((f) => f.text).join(' '), 'PAS');
+  const structure = StructureScanner.scan(allText.slice(0, 8).map((f) => f.text).join('\n'), 'PAS');
   const copyScore = Math.round(facts.score * 0.4 + readability.score * 0.35 + structure.score * 0.25);
   checks.push({
     id: 'SYS-08',
@@ -219,19 +229,48 @@ export async function auditProject({ projectDir, rootDir, strict = true }) {
   });
 
   // ── 7. SYS-09 · качество кода ────────────────────────────────────────────
+  // Синтаксис проверяем настоящим парсером: иначе аудит ставит 100/100 файлу,
+  // который не соберётся (esbuild приходит в комплекте с Vite, отдельной зависимости нет).
+  const parseErrors = [];
+  try {
+    const { transformSync } = await import('esbuild');
+    for (const src of [...tsx, ...css]) {
+      try {
+        transformSync(src.code, {
+          loader: src.file.endsWith('.css') ? 'css' : src.file.endsWith('.tsx') ? 'tsx' : 'ts',
+          format: 'esm',
+          jsx: 'automatic',
+          sourcefile: src.file
+        });
+      } catch (e) {
+        const msg = (e?.errors?.[0]?.text ?? e.message ?? '').split('\n')[0];
+        const at = e?.errors?.[0]?.location;
+        parseErrors.push({ file: src.file, line: at?.line ?? 0, msg: msg.slice(0, 100) });
+      }
+    }
+  } catch {
+    parseErrors.push({ file: '(esbuild)', line: 0, msg: 'парсер недоступен, синтаксис не проверен' });
+  }
+
   const codeAudit = new StaticCodeAuditor().audit(tsx);
   const codeBlockers = codeAudit.violations.filter((v) => v.severity === 'block').length;
+  // Синтаксическая ошибка блокирует всегда: сборка с ней не проходит даже в --loose
+  const parseBlockers = parseErrors.length;
+  const codeScore = Math.max(0, codeAudit.score - parseBlockers * 25);
   checks.push({
     id: 'SYS-09',
     name: 'Zero-Bug · статический аудит',
-    score: codeAudit.score,
-    status: statusOf(codeAudit.score, strict ? codeBlockers : 0, codeAudit.violations.length - codeBlockers),
-    blockers: strict ? codeBlockers : 0,
+    score: codeScore,
+    status: statusOf(codeScore, (strict ? codeBlockers : 0) + parseBlockers, codeAudit.violations.length - codeBlockers),
+    blockers: (strict ? codeBlockers : 0) + parseBlockers,
     warnings: codeAudit.violations.length - codeBlockers,
-    details: codeAudit.violations.slice(0, 12).map((v) =>
-      `${v.severity === 'block' ? color.red : color.yellow}${v.rule}${color.reset} ${fit(v.file, 30)}:${v.line} — ${fit(v.detail, 54)}\n    ${color.dim}фикс: ${v.fix}${color.reset}`
-    ),
-    fix: 'rAF-отмена, dispose() WebGL, Error Boundary, alt/размеры у <img>.'
+    details: [
+      ...parseErrors.map((e) => `${color.red}✗ PARSE ${fit(e.file, 34)}:${e.line}${color.reset} ${e.msg}`),
+      ...codeAudit.violations.slice(0, 12).map((v) =>
+        `${v.severity === 'block' ? color.red : color.yellow}${v.rule}${color.reset} ${fit(v.file, 30)}:${v.line} — ${fit(v.detail, 54)}\n    ${color.dim}фикс: ${v.fix}${color.reset}`
+      )
+    ],
+    fix: 'Сначала синтаксис (esbuild), затем rAF-отмена, dispose() WebGL, Error Boundary, alt/размеры у <img>.'
   });
 
   // ── 8. SYS-01 · анимации ─────────────────────────────────────────────────
@@ -277,9 +316,11 @@ export async function auditProject({ projectDir, rootDir, strict = true }) {
   // ── 10. SYS-06 · SEO-контракт ───────────────────────────────────────────
   const seoFiles = tsx.filter((s) => /pageSEO|PageSEOContract|seo\.config/.test(s.code));
   let seoResult = { valid: false, errors: ['Не найден src/content/seo.config.ts с экспортом pageSEO'], warnings: [], lengths: {} };
+  let seoSource = '';
   let h1Check = null;
   for (const file of seoFiles) {
     if (!/seo\.config|seo\.contract/.test(file.file)) continue;
+    seoSource = file.code;
     try {
       const mod = await importSafe(file.abs);
       const contract = mod.pageSEO ?? mod.default?.pageSEO;
@@ -292,22 +333,30 @@ export async function auditProject({ projectDir, rootDir, strict = true }) {
   const indexHtml = htmlFiles.find((f) => /index\.html$/.test(f.file));
   const h1Count = indexHtml ? (indexHtml.code.match(/<h1[\s>]/gi) ?? []).length : 0;
   h1Check = `h1 в index.html: ${h1Count} (SSR/пререндер — иначе поисковик увидит пустой <div id="root">)`;
-  const seoBlockers = seoResult.valid ? 0 : 1;
+  // Каркас клиента: пока в контракте стоит текст из `studio new`, выдавать сайт нельзя.
+  const scaffoldPlaceholders = [];
+  for (const re of [/STUDIO_SCAFFOLD_PLACEHOLDER/gu, /заполните[\s\p{L}]*/giu, /TODO\b[^\n]*/giu, /\bFIXME\b/giu, /lorem ipsum/giu]) {
+    for (const m of seoSource.match(re) ?? []) {
+      if (!scaffoldPlaceholders.includes(m.trim())) scaffoldPlaceholders.push(m.trim().slice(0, 60));
+    }
+  }
+  const seoBlockers = (seoResult.valid ? 0 : 1) + scaffoldPlaceholders.length;
   checks.push({
     id: 'SYS-06',
     name: 'SEO by design',
-    score: seoResult.valid ? 100 : Math.max(0, 100 - seoResult.errors.length * 25),
-    status: statusOf(seoResult.valid ? 100 : 50, seoBlockers, (seoResult.warnings ?? []).length + (h1Count === 1 ? 0 : 1)),
+    score: Math.max(0, (seoResult.valid ? 100 : 100 - seoResult.errors.length * 25) - scaffoldPlaceholders.length * 25),
+    status: statusOf(Math.max(0, (seoResult.valid ? 100 : 50) - scaffoldPlaceholders.length * 25), seoBlockers, (seoResult.warnings ?? []).length + (h1Count === 1 ? 0 : 1)),
     blockers: seoBlockers,
     warnings: (seoResult.warnings ?? []).length + (h1Count === 1 ? 0 : 1),
     details: [
       ...seoResult.errors.map((e) => `${color.red}✗${color.reset} ${e}`),
+      ...scaffoldPlaceholders.map((p) => `${color.red}✗ незаполненный каркас: ${p}${color.reset}`),
       ...(seoResult.warnings ?? []).map((w) => `${color.yellow}▲${color.reset} ${w}`),
       `title ${seoResult.lengths?.title ?? 0} / description ${seoResult.lengths?.description ?? 0} симв.`,
       `${color.dim}${h1Check}${color.reset}`,
       `JSON-LD граф: ${/LocalBusiness|Service|BreadcrumbList/.test(tsx.map((t) => t.code).join('')) ? color.green + 'собирается из контракта' + color.reset : color.yellow + 'не найден' + color.reset}`
     ],
-    fix: 'Title 30–70, description 70–165, OG 1200×630, один h1, LocalBusiness+BreadcrumbList+FAQPage.'
+    fix: 'Title 30–70, description 70–165, OG 1200×630, один h1, LocalBusiness+BreadcrumbList+FAQPage. Данные — из заполненного seo.config.ts, не из каркаса.'
   });
 
   // ── сводный Originality Score из библиотеки ─────────────────────────────

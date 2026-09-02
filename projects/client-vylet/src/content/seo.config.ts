@@ -1,23 +1,74 @@
-import type { PageSEOContract } from '@library/06-seo/seo.contracts';
+// SYS-06 · SEO-контракт проекта. Его читает `studio audit` и gen-seo.mjs.
+// Заполнить клиентскими данными: телефон, адрес, ИНН, реальные цены из catalog.ts.
 
-// SYS-06. Контракт читает `studio audit` (реальный импорт, а не копия) — цифры обязаны быть клиентскими.
+// Только тип: Node (gen-seo.mjs, studio audit) стирает эту строку, Vite использует её для проверки.
+import type { PageSEOContract } from '../../../../library/06-seo/seo.contracts.ts';
+import { FLEET, SERVICES_FROM, AREAS } from './catalog.ts';
+
+const BASE = 'https://vylet.example';
+
 export const pageSEO: PageSEOContract = {
-  title: 'ВЫЛЕТ — заполните title 30-70 символов',
+  title: 'Автовышки, краны и земтехника на смену — ВЫЛЕТ, Одинцово',
   description:
-    'Опишите услугу цифрами: парк, вылет, сроки подачи, цена за смену, радиус выезда. Норма 70-165 символов для этого описания.',
-  canonical: 'https://example.com/',
-  robots: 'index, follow',
+    'Парк 34 единиц в Одинцово: автовышки 12–44 м, автокраны 16–100 т, манипуляторы, экскаваторы с молотом. Подача от 90 минут, смена 11 ч, наряд-допуск готовим сами.',
+  canonical: `${BASE}/`,
+  robots: 'index, follow, max-image-preview:large',
   lang: 'ru-RU',
-  h1: 'ВЫЛЕТ: заголовок одной строкой, до 90 символов',
+  h1: 'Автовышки, краны и земтехника на смену',
+  themeColor: '#05070c',
   breadcrumbs: [
-    { name: 'Главная', url: 'https://example.com/' },
-    { name: 'Техника', url: 'https://example.com/#fleet' }
+    { name: 'Парк техники', url: `${BASE}/#fleet` },
+    { name: 'Услуги', url: `${BASE}/#services` },
+    { name: 'Заявка', url: `${BASE}/#order` }
   ],
   openGraph: {
-    title: 'ВЫЛЕТ',
-    description: 'Оффер одной строкой',
+    title: 'ВЫЛЕТ · спецтехника на смену',
+    description: '34 единицы в Одинцово. Подача от 90 минут.',
     type: 'website',
-    image: { url: 'https://example.com/og.png', width: 1200, height: 630, alt: 'Техника на объекте' },
+    image: { url: `${BASE}/og.png`, width: 1200, height: 630, alt: 'Автовышка АГП-22.02 на объекте в Одинцово' },
     locale: 'ru_RU'
+  },
+  faq: [
+    {
+      question: 'Кто управляет машиной?',
+      answer: 'Только наш аттестованный машинист с удостоверением и журналом осмотра. Свой оператор допускается по доверенности после инструктажа на площадке.'
+    },
+    {
+      question: 'Что входит в смену 11 часов?',
+      answer: 'Рабочее время на площадке, перерывы машиниста, перестановки в пределах объекта и заправка в баке. Дорога и ожидание разгрузки свыше 2 часов считаются отдельно.'
+    },
+    {
+      question: 'Как быстро приедет техника?',
+      answer: 'В Одинцово — от 90 минут после подтверждения, по Московской области — от 3 часов. Для Москвы внутри МКАД окно подачи с 22:00.'
+    }
+  ],
+  business: {
+    legalName: 'ООО «Вылет»',
+    displayName: 'ВЫЛЕТ · спецтехника',
+    url: BASE,
+    logo: `${BASE}/logo.svg`,
+    image: `${BASE}/og.png`,
+    description:
+      'Аренда и заказ спецтехники в Одинцово: автовышки, автокраны, крано-манипуляторные установки, экскаваторы и тракторы с экипажем. Собственный сервисный участок.',
+    phone: '+7 498 000-11-24',
+    email: 'dispatch@vylet.example',
+    address: {
+      street: 'Транспортный проезд, 4',
+      city: 'Одинцово',
+      region: 'Московская область',
+      postalCode: '143003',
+      country: 'RU'
+    },
+    geo: { lat: 55.678, lng: 37.263 },
+    openingHours: ['Mo-Fr 08:00-20:00', 'Sa-Su 08:00-20:00'],
+    areaServed: AREAS.map((a) => a.name),
+    priceRange: `от ${Math.min(...FLEET.map((u) => u.shift)).toLocaleString('ru-RU')} ₽ за смену`,
+    foundingDate: '2016',
+    services: [
+      { name: 'Аренда автовышки 22 м', description: 'Люлька на 2 человека, вылет 8,1 м, работа на высоте', price: SERVICES_FROM, priceUnit: 'смена', audience: 'Фасадные и кровельные подрядчики' },
+      { name: 'Автокран 25 т с монтажной схемой', description: 'Стрела 9–21 м, гусёк 9 м, приборы безопасности', price: 21500, priceUnit: 'смена' },
+      { name: 'Земляные работы экскаватором 20 т', description: 'Траншея до 3,6 м, обратная засыпка, планировка', price: 15600, priceUnit: 'смена' }
+    ],
+    sameAs: ['https://vk.com/vylet.example', 'https://t.me/vylet_example']
   }
 };

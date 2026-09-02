@@ -62,6 +62,10 @@ export function AreaRadar() {
               </li>
             ))}
           </ul>
+
+          <p className="photo__hint" data-reveal>
+            {AREA_COPY.note}
+          </p>
         </div>
       </div>
     </section>

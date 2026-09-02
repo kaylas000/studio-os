@@ -86,6 +86,7 @@ await import(pathToFileURL(path.join(dist, 'assets', entryName)).href);
 await new Promise((r) => setTimeout(r, 900));
 
 const doc = dom.window.document;
+const footerText = doc.querySelector('.disclaimer')?.textContent ?? doc.querySelector('footer')?.textContent ?? '';
 const checks = [
   ['#root не пустой', doc.getElementById('root')?.childElementCount > 0],
   ['h1 на месте', /Автовышки, краны и земтехника/.test(doc.querySelector('#hero-title, .seo-h1')?.textContent ?? '')],
@@ -99,16 +100,16 @@ const checks = [
   ['объекты с фотослотами', doc.querySelectorAll('.photo').length >= 3],
   ['FAQ', doc.querySelectorAll('.faq details').length >= 5],
   ['форма заявки', Boolean(doc.querySelector('#order form'))],
-  ['подвал с дисклеймером', /публичной офертой/.test(doc.querySelector('.disclaimer')?.textContent ?? '')],
+  ['подвал с дисклеймером', /публичн[\p{L}]*\s+оферт[\p{L}]*/u.test(footerText), `нашли в подвале: «${footerText.slice(-120)}»`],
   ['touch-target у кнопки', Boolean(doc.querySelector('.btn'))],
   ['JSON-LD в разметке', /application\/ld\+json/.test(doc.documentElement.innerHTML)]
 ];
 
 let ok = true;
 console.log('\nСмоук собранного билда (jsdom):');
-for (const [label, passed] of checks) {
+for (const [label, passed, debug] of checks) {
   if (!passed) ok = false;
-  console.log(`  ${passed ? '✓' : '✗'} ${label}`);
+  console.log(`  ${passed ? '✓' : '✗'} ${label}${passed || !debug ? '' : `\n      ${debug}`}`);
 }
 if (errors.length) {
   ok = false;

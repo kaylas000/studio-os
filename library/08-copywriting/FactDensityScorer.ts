@@ -22,7 +22,7 @@ const unit = (list: string) => new RegExp(`${num}\\s*(?:${list})(?![\\p{L}])`, '
 const FACT_PATTERNS: Array<{ name: string; re: RegExp; hint: string }> = [
   {
     name: 'metric',
-    re: unit('%|px|ms|мс|сек|сек\\.|мин|ч|ч\\.|часа|часов|час|дн|дн\\.|дня|день|дней|сут|сутки|руб|₽|\\$|€|mb|gb|tb|rps|fps|кбит|мб|процентов'),
+    re: unit('%|px|ms|мс|сек|сек\\.|мин|ч|ч\\.|часа|часов|час|дн|дн\\.|дня|день|дней|сут|сутки|недел|месяц|лет|год|года|годов|руб|₽|\\$|€|mb|gb|tb|rps|fps|кбит|мб|процентов|°C|℃|градусов'),
     hint: 'добавить измеримую величину (срок, скорость, объём)'
   },
   {
@@ -37,7 +37,7 @@ const FACT_PATTERNS: Array<{ name: string; re: RegExp; hint: string }> = [
   },
   {
     name: 'count',
-    re: new RegExp(`${num}\\s*(?:клиент|проект|сервер|пользовател|наград|мест|микросервис|устройств|объект|заявк|смен|выезд|агрегат|единиц)[\\p{L}]*`, 'giu'),
+    re: new RegExp(`${num}\\s*(?:клиент|проект|сервер|пользовател|наград|мест|микросервис|устройств|объект|заявк|смен|выезд|агрегат|единиц|случа|ошибо|замечани|возражен|паузн|пау|погруз|цикл|подъём|операци)[\\p{L}]*`, 'giu'),
     hint: 'посчитать, сколько раз/объектов/клиентов'
   },
   {
@@ -59,19 +59,54 @@ export class FactDensityScorer {
     const factsFound: string[] = [];
     const hitNames = new Set<string>();
 
-    FACT_PATTERNS.forEach(({ name, re }) => {
-      const matches = source.match(re);
-      if (!matches) return;
-      hitNames.add(name);
-      factsFound.push(...matches.map((m) => m.trim()));
-    });
+    // Мусорные «цифры»: версии, координаты, времена 08:00, ИНН и телефоны — это не факты
+    // оффера. Раньше standalone-проход ловил «.02», «:00», «032» и надувал метрику.
+    const isRealFact = (value: string, index: number): boolean => {
+      const digits = value.match(/\d/g);
+      if (!digits || digits.length === 0) return false;
+      // ИНН/КПП/ID — сплошной ряд цифр. «3 000 000 ₽» разрядным тире не является
+      const longestRun = (value.match(/\d+/g) ?? []).reduce((max, run) => Math.max(max, run.length), 0);
+      if (longestRun >= 7) return false;
+      const before = source.slice(Math.max(0, index - 16), index);
+      const after = source.slice(index + value.length, index + value.length + 16);
+      const near = before + value + after;
+      if ((near.match(/\d/g) ?? []).length >= 9 && !/[₽$€%]|руб|км|мин|сек|ч(?![\p{L}])/u.test(near)) return false;
+      // Дробь/координата/время: «55.678», «08:00», «v1.02» — не факты.
+      // Но «за 2 часа, на 4-й день» нормальна, поэтому отбрасываем только
+      // пунктуацию, за которой сразу идёт цифра, или цифру после разделителя.
+      if (/^\s*[.,:]\s*\d/u.test(after)) return false;
+      if (/\d\s*[.,]\s*$/u.test(before) && !/[\p{L}]/u.test(value)) return false;
+      if (/^\s*[:.]\s*\d/u.test(after) && /[\p{L}]/u.test(value)) return false;
+      return true;
+    };
 
-    // Одиночные числа >= 2 знаков, которые не попали ни в один паттерн
-    const standalone = source.match(/(^|[^\p{L}\p{N}])\d{2,}(?=$|[^\p{L}\p{N}])/gu) ?? [];
-    standalone.forEach((raw) => {
-      const trimmed = raw.trim();
-      if (!factsFound.some((f) => f.includes(trimmed))) factsFound.push(trimmed);
-    });
+    const addFrom = (re: RegExp, name: string) => {
+      let m: RegExpExecArray | null;
+      const scan = new RegExp(re.source, re.flags.includes('g') ? re.flags : `${re.flags}g`);
+      let hits = 0;
+      while ((m = scan.exec(source))) {
+        // Ключ факта — без обрамляющей пунктуации, иначе «:00» и «00» считаются разными фактами
+        const value = m[0].replace(/^[^\p{L}\p{N}]+/gu, '').replace(/[^\p{L}\p{N}%°₽$€]+$/gu, '');
+        if (!isRealFact(value, m.index)) continue;
+        hits += 1;
+        factsFound.push(value);
+      }
+      if (hits) hitNames.add(name);
+    };
+
+    FACT_PATTERNS.forEach(({ name, re }) => addFrom(re, name));
+
+    // Одиночные числа >= 2 знаков вне паттернов — тоже факт, если проходят валидацию
+    const standalone = /(^|[^\p{L}\p{N}])\d{2,}(?=$|[^\p{L}\p{N}])/gu;
+    let sm: RegExpExecArray | null;
+    while ((sm = standalone.exec(source))) {
+      const value = sm[0].replace(/^[^\p{L}\p{N}]+/gu, '').replace(/[^\p{L}\p{N}%°₽$€]+$/gu, '');
+      const at = sm.index + sm[0].indexOf(value);
+      if (!isRealFact(value, at)) continue;
+      // Уже учтён внутри более длинного факта («100» внутри «16–100 т») — не дублируем
+      if (factsFound.some((f) => f.includes(value))) continue;
+      factsFound.push(value);
+    }
 
     const unique = Array.from(new Set(factsFound));
     // Шкала привязана к нормативу студии: 1 цифра на 25 слов = 100 баллов,

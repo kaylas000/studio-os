@@ -35,7 +35,14 @@ function tokens(text: string): string[] {
 
 export class ReadabilityAnalyzer {
   public static analyze(text: string): ReadabilityResult {
-    const source = String(text ?? '').replace(/\s+/g, ' ').trim();
+    // Вертикальные пробелы значимы: для аудита текст — это поток копирайта,
+    // где перенос строки разделяет самостоятельные блоки (заголовок, лейбл, абзац).
+    // Склейка их в «одно предложение» занижала читаемость на 20+ баллов.
+    const source = String(text ?? '')
+      .replace(/[ \t]+/gu, ' ')
+      .replace(/ ?\n ?/gu, '\n')
+      .replace(/\n{2,}/gu, '\n')
+      .trim();
     const empty = {
       score: 100,
       rawFlesch: 100,
@@ -51,7 +58,10 @@ export class ReadabilityAnalyzer {
 
     if (!source) return empty;
 
-    const sentences = source.split(/(?<=[.!?…])\s+/u).filter((s) => s.trim().length > 1);
+    const sentences = source
+      .split(/(?<=[.!?…])[ \n]+|\n/u)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 1);
     const words = tokens(source);
     if (!sentences.length || !words.length) return empty;
 

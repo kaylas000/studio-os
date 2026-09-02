@@ -17,7 +17,7 @@ npm run build && node scripts/smoke.mjs           # сборка + смоук-п
    Все числа в интерфейсе приходят отсюда: карточки, таблица, калькулятор, `priceRange` в Schema.org.
 2. **`src/content/copy.ts`** — тексты. Формула PAS и факт-плотность проверяются аудитом:
    оценочные слова («качественно», «индивидуальный подход», «широкий спектр») роняют Originality Score.
-3. **`src/content/seo.ts`** — title 30–70, description 70–165 символа, адрес, телефон, `sameAs`, FAQ.
+3. **`src/content/seo.config.ts`** — title 30–70, description 70–165 символа, адрес, телефон, `sameAs`, FAQ.
    После правки — `npm run seo`, иначе мета в `index.html` разъедется с контрактом.
 4. **`src/content/brand.ts`** — палитра поверх архетипа. Это единственный файл, где меняются цвета:
    он же красит CSS-переменные, и он же проходит APCA-гейт (`studio audit` не даст поставить нечитаемый цвет).
@@ -47,7 +47,7 @@ case-facade.jpg  case-crane.jpg  case-earth.jpg
 | 03 | `fluid-system.css`, `safe-area.css`, таблица в `ViewportMatrix` (19 вьюпортов), touch-target ≥ 44 px |
 | 04 | все отступы — `var(--space-*)`; `Box/Stack/Section` из `primitives.tsx` |
 | 05 | `components/Intro.tsx` на `IntroEngine`: Skip + Esc, лимит по FPS, полный `dispose`, статика без WebGL |
-| 06 | `content/seo.ts` → валидация контракта + JSON-LD (LocalBusiness, Service, BreadcrumbList, FAQPage), h1 в первом ответе |
+| 06 | `content/seo.config.ts` → валидация контракта + JSON-LD (LocalBusiness, Service, BreadcrumbList, FAQPage), h1 в первом ответе |
 | 07 | архетип cyber-tech + `brand.ts`, контраст считается по APCA (мин. 75 Lc для body) |
 | 08 | PAS в текстах, факт-плотность и читаемость — метрики в `studio.audit.json` |
 | 09 | `StaticCodeAuditor`: rAF-отмена, `dispose()` WebGL, Error Boundary, alt/размеры у `<img>` |

@@ -239,6 +239,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
     'src/content/seo.config.ts': `import type { PageSEOContract } from '@library/06-seo/seo.contracts';
 
 // SYS-06. Контракт читает \`studio audit\` (реальный импорт, а не копия) — цифры обязаны быть клиентскими.
+export const STUDIO_SCAFFOLD_PLACEHOLDER = true; // удалите строку, когда данные заполнены
 export const pageSEO: PageSEOContract = {
   title: '${brand} — заполните title 30-70 символов',
   description:

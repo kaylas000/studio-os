@@ -12,6 +12,10 @@ export function FaqIndex() {
         </header>
         <p className="section-index mono">{FAQ.items.length} ответов, продублированы в JSON-LD</p>
 
+        <p className="photo__hint" style={{ gridColumn: '1 / -1' }} data-reveal>
+          {FAQ.note}
+        </p>
+
         <div className="faq" style={{ gridColumn: '1 / -1', marginTop: 'var(--space-32)' }} data-reveal>
           {FAQ.items.map((item, i) => (
             <details key={item.q} open={i === 0}>

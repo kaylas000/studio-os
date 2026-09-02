@@ -54,59 +54,78 @@ export class SpacingTokenGuard {
       if (!line || line.startsWith('/*') || line.startsWith('//') || line.startsWith('*')) return;
 
       // 1. CSS-объявления: padding: 13px / margin: 0 auto 27px
+      // Считаем слотами (по одному на каждое значение), иначе shorthand
+      // `padding: var(--space-24) var(--space-32)` даёт «1 объявление + 2 px» и
+      // доля токенов падает на треть без всякой вины вёрстки.
+      const splitSlots = (value: string): string[] => {
+        const out: string[] = [];
+        let depth = 0;
+        let cur = '';
+        for (const ch of value) {
+          if (ch === '(') depth++;
+          if (ch === ')') depth--;
+          if (/\s/.test(ch) && depth === 0) {
+            if (cur) out.push(cur);
+            cur = '';
+            continue;
+          }
+          cur += ch;
+        }
+        if (cur) out.push(cur);
+        return out;
+      };
       const declRe = /(--[\w-]+|padding|margin|gap|row-gap|column-gap|inset)(?:-(top|right|bottom|left))?\s*:\s*([^;}]+)/gi;
       let m: RegExpExecArray | null;
       while ((m = declRe.exec(line))) {
         const prop = m[1];
         const value = m[3].trim();
         if (!/padding|margin|gap|inset/i.test(prop)) continue;
-        checked++;
-        if (TOKEN_FN.test(value)) {
-          tokenized++;
-          // clamp()/var() валидируем по числам внутри: есть off-scale px в clamp → warn
-          for (const px of value.matchAll(/(\d+(?:\.\d+)?)px/g)) {
-            const num = parseFloat(px[1]);
-            if (num === 0 || SpacingTokenGuard.isOnScale(num, this.scale)) continue;
-            violations.push({
-              file,
-              line: i + 1,
-              property: prop,
-              value,
-              px: num,
-              nearest: nearestToken(num),
-              delta: Math.round((num - nearestToken(num)) * 10) / 10,
-              severity: 'warn'
-            });
-          }
-          continue;
-        }
 
-        const pxMatches = [...value.matchAll(/(-?\d+(?:\.\d+)?)px/g)];
-        if (!pxMatches.length) {
-          // 8px-сетка пропущена только если значение в rem/em и кратно 0.25rem
-          const rem = [...value.matchAll(/(-?\d+(?:\.\d+)?)rem/g)];
-          if (rem.length && rem.every((r) => Math.abs((parseFloat(r[1]) * 16) % 4) < 0.01 || Math.abs(parseFloat(r[1]) * 16 % 2) < 0.01)) {
-            tokenized++;
-          }
-          continue;
-        }
-
-        for (const px of pxMatches) {
-          const num = Math.abs(parseFloat(px[1]));
-          checked++;
-          if (SpacingTokenGuard.isOnScale(num, this.scale)) {
+        for (const slot of splitSlots(value)) {
+          if (/^(auto|inherit|initial|unset|revert|none|100%|50%)$/i.test(slot)) continue;
+          // Нулевой отступ — вопрос не шкалы, а сброса: токен не нужен.
+          if (/^0(ap)?$/i.test(slot)) {
+            checked++;
             tokenized++;
             continue;
           }
+          checked++;
+          if (TOKEN_FN.test(slot)) {
+            tokenized++;
+            // clamp()/calc() валидируем по числам внутри: off-scale px внутри clamp → warn
+            for (const px of slot.matchAll(/(-?\d+(?:\.\d+)?)px/g)) {
+              const num = Math.abs(parseFloat(px[1]));
+              if (num === 0 || SpacingTokenGuard.isOnScale(num, this.scale)) continue;
+              violations.push({
+                file,
+                line: i + 1,
+                property: prop,
+                value: `${prop}: ${value}`,
+                px: num,
+                nearest: nearestToken(num),
+                delta: Math.round((num - nearestToken(num)) * 10) / 10,
+                severity: 'warn'
+              });
+            }
+            continue;
+          }
+          const numMatch = slot.match(/^(-?\d+(?:\.\d+)?)(px|rem|em)$/i);
+          if (!numMatch) {
+            tokenized++; // переменная, калькуляция, ключевое слово — не хардкод
+            continue;
+          }
+          const num = Math.abs(parseFloat(numMatch[1]));
+          const scale = numMatch[2].toLowerCase() === 'px' ? num : parseFloat(numMatch[1]) * 16;
+          if (SpacingTokenGuard.isOnScale(Math.round(scale), this.scale)) continue; // на шкале, но не токен
           violations.push({
             file,
             line: i + 1,
             property: prop,
             value: `${prop}: ${value}`,
-            px: num,
-            nearest: nearestToken(num),
-            delta: Math.round((num - nearestToken(num)) * 10) / 10,
-            severity: num >= 8 ? 'block' : 'warn'
+            px: Math.round(scale * 10) / 10,
+            nearest: nearestToken(scale),
+            delta: Math.round((scale - nearestToken(scale)) * 10) / 10,
+            severity: Math.round(scale) >= 8 ? 'block' : 'warn'
           });
         }
       }

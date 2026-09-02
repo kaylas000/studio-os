@@ -24,6 +24,10 @@ export function DocsVault() {
           ))}
         </div>
 
+        <p className="photo__hint" style={{ gridColumn: '1 / -1' }} data-reveal>
+          {DOCS.note}
+        </p>
+
         <div style={{ gridColumn: '1 / -1' }} data-reveal>
           <p className="warn">
             <span aria-hidden="true" className="mono" style={{ color: 'var(--studio-alert)' }}>

@@ -39,6 +39,8 @@ export interface ClicheAnalysisResult {
 export interface SourceFragment {
   file: string;
   text: string;
+  /** строка файла для каждого куска прозы: без неё отчёт показывает номера строк внутри выжимки */
+  proseLines?: number[];
 }
 
 export interface FileFinding extends ClicheIssue {
@@ -296,6 +298,13 @@ export class ClicheDetector {
 
     for (const frag of fragments) {
       const res = this.analyze(frag.text, { reportLines: true });
+      if (frag.proseLines?.length) {
+        for (const issue of res.issues) {
+          if (issue.lines?.length) {
+            issue.lines = issue.lines.map((n) => frag.proseLines?.[n - 1] ?? n);
+          }
+        }
+      }
       perFile.push({ file: frag.file, score: res.score, issues: res.issues });
       for (const issue of res.issues) {
         issues.push({ ...issue, file: frag.file });
@@ -319,26 +328,56 @@ export class ClicheDetector {
    * JSX-текст между тегами и содержимое md/html. Идентификаторы, классы и пути в замер
    * не попадают — иначе факт-плотность и Flesch считаются по коду.
    */
+  /**
+   * То же, что extractProse, но с картой «строка прозы → строка файла».
+   * Сканируем построчно: один апостроф в JSX-тексте ("can't", «"кавычки"») иначе
+   * съедает полфайла как «строку», и весь копирайнт между ними уходит из анализа.
+   */
+  public static extractProseWithLines(code: string): Array<{ text: string; line: number }> {
+    const chunks: Array<{ text: string; line: number }> = [];
+    const looksLikeCode = (raw: string) =>
+      /[{};=<>|`\\]|\bpx\b|#[0-9a-f]{3,8}|[\w.-]+\.(ts|tsx|css|scss|png|jpg|jpeg|svg|json|webp)/i.test(raw);
+    const looksLikeProse = (raw: string) => /[\p{L}]{3,}\s+[\p{L}]{3,}/u.test(raw);
+    const push = (raw: string, line: number) => {
+      const clean = raw
+        .replace(/\\n/g, ' ')
+        .replace(/\$\{[^}]*\}/g, ' ')
+        .replace(/[ \t]+/g, ' ')
+        .trim();
+      if (clean.length < 12 || looksLikeCode(clean) || !looksLikeProse(clean)) return;
+      chunks.push({ text: clean, line });
+    };
+
+    const lines = String(code ?? '').split('\n');
+    const single = /(['"])((?:\\.|(?!\1)[^'"\\\n]){12,}?)\1/g;
+    lines.forEach((line, i) => {
+      single.lastIndex = 0;
+      let m: RegExpExecArray | null;
+      while ((m = single.exec(line))) push(m[2], i + 1);
+
+      const jsxText = />\s*([^<>{}\n]{18,}?)\s*</g;
+      let j: RegExpExecArray | null;
+      while ((j = jsxText.exec(line))) push(j[1], i + 1);
+    });
+
+    // Многострочные шаблонные литералы: «сырой» текст между ` бэктиками
+    const template = /`([^`\\]{12,}?)`/g;
+    let t: RegExpExecArray | null;
+    while ((t = template.exec(code))) {
+      const line = code.slice(0, t.index).split('\n').length;
+      push(t[1].replace(/\n\s*/g, ' '), line);
+    }
+
+    const seen = new Set<string>();
+    return chunks.filter((c) => {
+      if (seen.has(c.text)) return false;
+      seen.add(c.text);
+      return true;
+    });
+  }
+
   public static extractProse(code: string): string {
-    const chunks: string[] = [];
-    const literal = /(['"`])((?:\\.|(?!\1)[\s\S]){12,}?)\1/g;
-    let m: RegExpExecArray | null;
-    while ((m = literal.exec(code))) {
-      const raw = m[2].replace(/\\n/g, ' ').replace(/\$\{[^}]*\}/g, ' ').trim();
-      if (/[{};=<>|`]|\bpx\b|#[0-9a-f]{3,8}|[\w.-]+\.(ts|tsx|css|png|jpg|svg|json)/i.test(raw)) continue;
-      if (!/[\p{L}]{3,}\s+[\p{L}]{3,}/u.test(raw)) continue;
-      chunks.push(raw);
-    }
-
-    const jsxText = />\s*([^<>{}\n]{18,}?)\s*</g;
-    while ((m = jsxText.exec(code))) {
-      const raw = m[1].trim();
-      if (!raw || /^[\p{L}]+\(.*\)$/u.test(raw)) continue;
-      if (!/[\p{L}]{3,}\s+[\p{L}]{3,}/u.test(raw)) continue;
-      chunks.push(raw.replace(/\{[^}]*\}/g, ' ').trim());
-    }
-
-    return chunks.map((c) => c.replace(/\s+/g, ' ')).join('\n').trim();
+    return ClicheDetector.extractProseWithLines(code).map((c) => c.text).join('\n');
   }
 
   // Устаревшее имя: оставлено для совместимости showcase-страниц.

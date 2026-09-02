@@ -5,6 +5,8 @@ import { ReadabilityAnalyzer } from './library/08-copywriting/ReadabilityAnalyze
 import { ARCHETYPES } from './library/07-archetypes/TokenEngine.ts';
 import { validateSEOContract } from './library/06-seo/seo.contracts.ts';
 import JSZip from 'jszip';
+import fs from 'node:fs';
+import path from 'node:path';
 import { SpacingTokenGuard } from './library/04-spacing/SpacingTokenGuard.ts';
 import { ViewportMatrix } from './library/03-mobile/ViewportMatrix.ts';
 import { apcaLc, wcagRatio } from './library/07-archetypes/contrast.ts';
@@ -122,6 +124,51 @@ const originality = new OriginalityScore().compute({
   minApcaLc: 77
 });
 assert(originality.score >= 75 && originality.verdict === "pass", "15. Originality Score >= 75 на чистом проекте");
+
+// 16. Regex-слой студии: \b и \w рядом с кириллицей запрещены (JS считает их ASCII).
+const walkSources = (dir) => fs.existsSync(dir) ? fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+  const full = path.join(dir, e.name);
+  return e.isDirectory() ? walkSources(full) : (/\.(ts|js|mjs)$/.test(e.name) ? [full] : []);
+}) : [];
+const REGEX_LITERAL = /(?<![\\/])\/(?![/*\s])(?:\\.|\[[^\]]*\]|[^/\n\\])+\/[gimsuy]*/g;
+const asciiTrapHits = [];
+for (const file of [...walkSources('library'), ...walkSources('core-engine')]) {
+  const lines = fs.readFileSync(file, 'utf8').split('\n');
+  lines.forEach((line, idx) => {
+    const text = line.trim();
+    if (text.startsWith('//') || text.startsWith('*')) return;
+    for (const [literal] of line.matchAll(REGEX_LITERAL)) {
+      if (/[\u0400-\u04FF]/.test(literal) && /\\[bwB]/.test(literal)) {
+        asciiTrapHits.push(`${file}:${idx + 1} ${literal.slice(0, 60)}`);
+      }
+    }
+  });
+}
+assert(asciiTrapHits.length === 0, `16. Нет \\b/\\w в регулярках с кириллицей (нарушений: ${asciiTrapHits.length}${asciiTrapHits.length ? ' → ' + asciiTrapHits[0] : ''})`);
+
+// 17. Факт-сканер: ИНН/телефон/координаты — не факты, деньги и длительности — факты
+const noise = FactDensityScorer.calculate("ООО «Вылет», ИНН 5032112233, телефон +7 498 000-11-24, координаты 55.678/37.263, версия 1.02.");
+const real = FactDensityScorer.calculate("Смена 11 часов стоит 13 200 ₽, страховка 3 000 000 ₽, наряд-допуск оформляем за 2 часа, ППР за 4 дня.");
+assert(noise.factsCount <= 1, "17a. Реквизиты и версии не надувают факт-плотность");
+assert(real.factsCount >= 4 && /3 000 000/.test(real.factsFound.join(' ')), "17b. Деньги и длительности считаются фактами");
+
+// 18. E2E: аудит клиентского проекта проходит гейт студии без блокирующих
+const { auditProject } = await import('./core-engine/lib/audit.js');
+const report = await auditProject({ projectDir: path.resolve('projects/client-vylet'), rootDir: process.cwd(), strict: true });
+assert(report.blockers === 0 && report.passed && report.originality.score >= 90 && report.checks.some((c) => c.id === 'SYS-09' && c.score === 100), `18. E2E-аудит client-vylet: ${report.originality.score}/100, блокирующих ${report.blockers}`);
+
+// 19. Extractor прозы: апостроф в JSX не должен «съедать» соседние строки копирайта
+const tricky = [
+  "export const C = () => {",
+  "  const [t, setT] = useState('user’s can’t case');",
+  "  const SLOP = ['В современном цифровом мире мы предлагаем уникальный опыт'];",
+  "  return <p>Мы не просто делаем сайты, а воплощаем мечты</p>;",
+  "};"
+].join("\n");
+const prose19 = ClicheDetector.extractProseWithLines(tricky);
+const joined19 = prose19.map((c) => c.text).join(" | ");
+assert(/мы предлагаем/iu.test(joined19) && /не просто/iu.test(joined19), "19a. Extractor находит копипаст после строк с апострофами");
+assert(prose19.find((c) => /мы предлагаем/iu.test(c.text))?.line === 3, "19b. Номера строк прозы указывают на файл, а не на выжимку");
 
 console.log("\n==================================================");
 const pct = total ? Math.round((passed / total) * 100) : 0;

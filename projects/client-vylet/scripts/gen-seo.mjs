@@ -1,4 +1,4 @@
-// Собирает JSON-LD граф из seo.ts и вставляет его в index.html между маркерами.
+// Собирает JSON-LD граф из seo.config.ts и вставляет его в index.html между маркерами.
 // Запуск: npm run seo (и как prebuild) — так SEO-контент есть в первом ответе, а не только после JS.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,7 +10,7 @@ const root = path.resolve(here, '..');
 const lib = path.resolve(root, '../../library/06-seo/seo.contracts.ts');
 
 const { validateSEOContract, buildSchemaGraph } = await import(pathToFileURL(lib).href);
-const { pageSEO } = await import(pathToFileURL(path.join(root, 'src/content/seo.ts')).href);
+const { pageSEO } = await import(pathToFileURL(path.join(root, 'src/content/seo.config.ts')).href);
 
 const check = validateSEOContract(pageSEO);
 if (!check.valid) {
