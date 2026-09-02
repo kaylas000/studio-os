@@ -1,9 +1,8 @@
 import { FOOTER } from '../content/copy';
-import { FLEET } from '../content/catalog';
+import { FLEET, fleetLabel } from '../content/catalog';
 import { brandName } from '../content/brand';
 
 export function SiteFooter() {
-  const total = FLEET.reduce((s, u) => s + u.total, 0);
   return (
     <footer className="footer" id="contacts">
       <div className="wrap">
@@ -17,7 +16,7 @@ export function SiteFooter() {
           </div>
           <nav className="stack-8" aria-label="Разделы">
             <p className="field__label">Техника</p>
-            <a href="#fleet">парк {FLEET.length} моделей · {total} единиц</a>
+            <a href="#fleet">парк {FLEET.length} моделей · {fleetLabel()}</a>
             <a href="#services">услуги и работы</a>
             <a href="#calc">расчёт смены</a>
           </nav>

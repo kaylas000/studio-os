@@ -7,7 +7,7 @@ export const CATEGORIES: Array<{ id: Category; name: string; short: string; note
   { id: 'aerial', name: 'Автовышки', short: 'АГП', note: 'Люлька 2 мест, допуск к работам на высоте' },
   { id: 'crane', name: 'Автокраны', short: 'КВ', note: 'РР на стрелу, приборы безопасности' },
   { id: 'manipulator', name: 'Манипуляторы', short: 'ХАБ', note: 'Гидрозахват, коники, трал по запросу' },
-  { id: 'earth', name: 'Земтехника', short: 'ЕКБ', note: 'Гидромолот и планировочный ковш' }
+  { id: 'earth', name: 'Земтехника', short: 'ЕКБ', note: 'Мини-экскаватор, гидромолот, планировочный ковш' }
 ];
 
 export interface Unit {
@@ -41,16 +41,18 @@ export interface Unit {
 }
 
 export const FLEET: Unit[] = [
-  { id: 'agp-12', category: 'aerial', model: 'АГП-12.02 на ГАЗон Next', maker: 'Клинцы', year: 2021, reach: 12, capacity: 0.3, shift: 13200, extraHour: 1150, minOrder: 1, hours: 1840, outreach: 'Вылет люльки 5,4 м', ground: 'Аутригеры: 4,2 × 4,8 м', crew: 1, photo: 'aerial-12', available: 4, total: 5 },
-  { id: 'agp-16', category: 'aerial', model: 'АГП-16 на ISUZU ELF, компактная', maker: 'Клинцы', year: 2019, reach: 16, capacity: 0.3, shift: 14200, extraHour: 1250, minOrder: 1, minHours: 2, hours: 3120, outreach: 'Вверх 16 м, вбок 16,5 м за счёт поворота люльки — уровень 5-этажки', ground: 'Высота проезда 2,8 м; с компрессором стравливаем шины и проходим ниже', crew: 1, photo: 'aerial-16', photoRatio: '3/4', available: 2, total: 3 },
+  { id: 'agp-14', category: 'aerial', model: 'АГП-14.02 на ГАЗон Next', maker: 'Клинцы', year: 2021, reach: 14, capacity: 0.3, shift: 13200, extraHour: 1150, minOrder: 1, hours: 1840, outreach: 'Вверх 14 м, вылет люльки 5,4 м', ground: 'Аутригеры: 4,2 × 4,8 м', crew: 1, photo: 'aerial-14', photoRatio: '3/4', available: 4, total: 5 },
+  { id: 'agp-16', category: 'aerial', model: 'АГП-16 на ISUZU ELF, компактная', maker: 'Клинцы', year: 2019, reach: 16, capacity: 0.3, shift: 14200, extraHour: 1250, minOrder: 1, minHours: 2, hours: 3120, outreach: 'Вверх 16 м, вбок 16,5 м за счёт поворота люльки — уровень 5-этажки и проём звонницы', ground: 'Высота проезда 2,8 м; с компрессором стравливаем шины и проходим ниже. Вывешивание на 4 лапы, под них плиты — работаем по плитке и газону', crew: 1, photo: 'aerial-16', photoRatio: '3/4', available: 2, total: 3 },
   { id: 'agp-22', category: 'aerial', model: 'АГП-22.02 на Урал 4320', maker: 'Клинцы', year: 2020, reach: 22, capacity: 0.3, shift: 16800, extraHour: 1350, minOrder: 1, hours: 2960, outreach: 'Вылет 8,1 м, люлька 2,4 м', ground: 'Полный привод, бездорожье', crew: 1, photo: 'aerial-22', available: 3, total: 4 },
   { id: 'agp-34', category: 'aerial', model: 'AeroStol 34 VR на КАМАЗ', maker: 'Аэростол', year: 2022, reach: 34, capacity: 0.4, shift: 24500, extraHour: 1800, minOrder: 1, hours: 980, outreach: 'Поворотная часть 360°', ground: 'Город, проезды 3,5 м', crew: 1, photo: 'aerial-34', available: 2, total: 2 },
   { id: 'agp-44', category: 'aerial', model: 'УМ-341 44 м на МАЗ', maker: 'Урбан', year: 2019, reach: 44, capacity: 0.25, shift: 31000, extraHour: 2200, minOrder: 1, hours: 4120, outreach: 'Вертикальный подъём 44 м', ground: 'Площадка 6 × 8 м', crew: 2, photo: 'aerial-44', available: 1, total: 2 },
+  { id: 'agp-70', category: 'aerial', model: 'АГП 70 м на КамАЗ, верхняя граница парка', maker: 'Клинцы', year: 2021, reach: 70, capacity: 0.2, shift: 48900, extraHour: 3400, minOrder: 1, hours: 1180, outreach: 'Подъём 70 м, боковой вылет до 32 м с падением грузоподъёмности', ground: 'Опорный контур 8 × 8 м, ППР и ветер не сильнее 12 м/с', crew: 2, photo: 'aerial-70', photoRatio: '3/4', available: 1, total: 1 },
   { id: 'kv-25', category: 'crane', model: 'Галичанин КС-4572А 25 т', maker: 'КЗ «Галичанин»', year: 2018, reach: 21, capacity: 25, shift: 21500, extraHour: 1700, minOrder: 1, hours: 5240, outreach: 'Стрела 9–21 м + гусёк 9 м', ground: 'Опорный контур 5,6 × 6,4 м', crew: 1, photo: 'crane-25', available: 3, total: 5 },
   { id: 'kv-40', category: 'crane', model: 'Челябинец КС-55713 40 т', maker: 'ЧMZ', year: 2020, reach: 27, capacity: 40, shift: 27800, extraHour: 2050, minOrder: 1, hours: 3110, outreach: 'Вылет 3,4–22 м с грузом', ground: 'Работа с ограничением 2,7 м', crew: 1, photo: 'crane-40', available: 2, total: 3 },
-  { id: 'kv-100', category: 'crane', model: 'XCMG XCT100 100 т', maker: 'XCMG', year: 2023, reach: 50, capacity: 100, shift: 62000, extraHour: 4200, minOrder: 2, hours: 640, outreach: 'Пять секций, 12–50 м', ground: 'Нужен проект производства работ', crew: 2, photo: 'crane-100', available: 1, total: 1 },
+  { id: 'kv-50', category: 'crane', model: 'Клинцы КС-55715 50 т на Урал 4320', maker: 'КЗ «Клинцы»', year: 2019, reach: 28, capacity: 50, shift: 34500, extraHour: 2600, minOrder: 1, hours: 4380, outreach: 'Стрела 11–28 м, гусёк 9 м', ground: 'Опорный контур 6,4 × 7,4 м, работа по ППР', crew: 1, photo: 'crane-50', available: 1, total: 2 },
   { id: 'hiab-32', category: 'manipulator', model: 'Hiab 032 на ГАЗель Next', maker: 'Hiab', year: 2021, reach: 9, capacity: 3.2, shift: 12400, extraHour: 1050, minOrder: 1, hours: 1520, outreach: 'Крано-манипуляторная установка', ground: 'Заезд во двор 2,6 м', crew: 1, photo: 'manipulator-32', available: 5, total: 6 },
   { id: 'hiab-70', category: 'manipulator', model: 'Palfinger E74 на КАМАЗ', maker: 'PALFINGER', year: 2022, reach: 14, capacity: 7, shift: 18900, extraHour: 1450, minOrder: 1, hours: 870, outreach: 'Гидрозахват + коники 6 м', ground: 'Платформа 6,2 м, 12 т', crew: 1, photo: 'manipulator-70', available: 2, total: 3 },
+  { id: 'mini-2', category: 'earth', model: 'Мини-экскаватор 2,8 т, резиновые гусеницы', maker: 'JCB', year: 2022, reach: 4, capacity: 2.8, shift: 9800, extraHour: 900, minOrder: 1, hours: 760, outreach: 'Траншея до 2,6 м, узкий ковш 300 мм', ground: 'Заезд в ворота от 2 м, газон и плитку не рвёт', crew: 1, photo: 'excavator-mini', photoRatio: '3/4', available: 2, total: 2 },
   { id: 'mtz', category: 'earth', model: 'Беларус МТЗ-82.1 + ковш', maker: 'МТЗ', year: 2017, reach: 0, capacity: 3.5, shift: 11800, extraHour: 950, minOrder: 1, hours: 6940, outreach: 'Планировка, корчевание', ground: 'Грунты I–IV, промерзание', crew: 1, photo: 'tractor-mtz', available: 3, total: 4 },
   { id: 'jcb-3cx', category: 'earth', model: 'JCB 3CX Backhoe', maker: 'JCB', year: 2021, reach: 5, capacity: 5, shift: 15600, extraHour: 1250, minOrder: 1, hours: 2280, outreach: 'Ковш 0,28 м³, траншея до 3,6 м', ground: 'Отсыпка, обратная засыпка', crew: 1, photo: 'excavator-jcb', available: 2, total: 3 },
   { id: 'ekb-20', category: 'earth', model: 'Komatsu PC200-8 + гидромолот', maker: 'Komatsu', year: 2019, reach: 6, capacity: 20, shift: 19400, extraHour: 1550, minOrder: 1, hours: 5120, outreach: 'Молот 1 200 Дж, рыхление', ground: 'Бетон, мёрзлый грунт, скала', crew: 1, photo: 'excavator-20', available: 2, total: 3 }
@@ -71,10 +73,16 @@ export const FLEET_AVAILABLE = FLEET.reduce((sum, unit) => sum + unit.available,
 export const fleetLabel = (withUnit = true) =>
   `${FLEET_TOTAL} ${withUnit ? plural(FLEET_TOTAL, ['единица', 'единицы', 'единиц']) : ''}`.trim();
 
-const aerial = FLEET.filter((u) => u.category === 'aerial').map((u) => u.reach);
-const crane = FLEET.filter((u) => u.category === 'crane').map((u) => u.capacity);
-export const AERIAL_RANGE = `${Math.min(...aerial)}–${Math.max(...aerial)} м`;
-export const CRANE_RANGE = `${Math.min(...crane)}–${Math.max(...crane)} т`;
+const inCat = (c: Category, key: 'reach' | 'capacity') => FLEET.filter((u) => u.category === c).map((u) => u[key]);
+const num = (n: number) => n.toLocaleString('ru-RU', { maximumFractionDigits: 1 });
+const span = (c: Category, key: 'reach' | 'capacity', suffix: string) =>
+  `${num(Math.min(...inCat(c, key)))}–${num(Math.max(...inCat(c, key)))} ${suffix}`;
+/** Все «от X до Y» в копирайте и SEO считаются из парка, а не пишутся словами. */
+export const AERIAL_RANGE = span('aerial', 'reach', 'м');
+export const CRANE_RANGE = span('crane', 'capacity', 'т');
+export const MANIP_RANGE = span('manipulator', 'capacity', 'т');
+export const MANIP_BOOM = span('manipulator', 'reach', 'м');
+export const EARTH_RANGE = span('earth', 'capacity', 'т');
 
 export interface Extra {
   id: string;
@@ -92,6 +100,10 @@ export const EXTRAS: Extra[] = [
 ];
 
 export const SERVICES_FROM = Math.min(...FLEET.map((u) => u.shift));
+
+/** Цена смены конкретной единицы: услуга «от» не должна расходиться с таблицей парка. */
+export const shiftOf = (id: string) => FLEET.find((u) => u.id === id)?.shift ?? SERVICES_FROM;
+export const shiftFromCategory = (c: Category) => Math.min(...FLEET.filter((u) => u.category === c).map((u) => u.shift));
 
 export const SHIFTS = { hours: 11, graceHours: 2, overtimeRate: 'по прайсу часа' };
 

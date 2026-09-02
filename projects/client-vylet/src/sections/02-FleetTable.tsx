@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { CATEGORIES, FLEET, fleetByCategory, SHIFTS, type Category } from '../content/catalog';
+import { CATEGORIES, FLEET, fleetByCategory, fleetLabel, SHIFTS, type Category } from '../content/catalog';
 import { FLEET_COPY } from '../content/copy';
 import { PhotoSlot } from '../components/PhotoSlot';
 import { scrollToId } from '../engine/useMotion';
@@ -18,7 +18,7 @@ export function FleetTable() {
       <div className="wrap grid9">
         <header className="section-head">
           <p className="kicker">
-            {FLEET_COPY.index} · парк {FLEET.length} моделей · 34 единицы
+            {FLEET_COPY.index} · парк {FLEET.length} моделей · {fleetLabel()}
           </p>
           <h2 id="fleet-title" data-reveal>
             {FLEET_COPY.h2}
@@ -118,7 +118,7 @@ export function FleetTable() {
                       </div>
                       <div className="total__row">
                         <dt>Минимальный заказ</dt>
-                        <dd>{unit.minHours ? `от ${unit.minHours} ч` : `смена ${SHIFTS.hours} ч`}</dd>
+                        <dd>{unit.minHours ? `от ${unit.minHours} ч по прайсу часа` : `${unit.minOrder} × смена ${SHIFTS.hours} ч`}</dd>
                       </div>
                       <div className="total__row">
                         <dt>Экипаж</dt>
@@ -127,10 +127,6 @@ export function FleetTable() {
                       <div className="total__row">
                         <dt>Час сверх смены</dt>
                         <dd>{rub(unit.extraHour)}</dd>
-                      </div>
-                      <div className="total__row">
-                        <dt>Минимальный заказ</dt>
-                        <dd>{unit.minOrder} см.</dd>
                       </div>
                     </dl>
                     <div className="stack-12">

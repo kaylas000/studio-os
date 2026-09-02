@@ -3,7 +3,7 @@
 
 // Только тип: Node (gen-seo.mjs, studio audit) стирает эту строку, Vite использует её для проверки.
 import type { PageSEOContract } from '../../../../library/06-seo/seo.contracts.ts';
-import { AERIAL_RANGE, CRANE_RANGE, FLEET, SERVICES_FROM, AREAS, SHIFTS, fleetLabel } from './catalog.ts';
+import { AERIAL_RANGE, CRANE_RANGE, AREAS, SERVICES_FROM, SHIFTS, fleetLabel, shiftFromCategory, shiftOf } from './catalog.ts';
 
 const BASE = 'https://vylet.example';
 
@@ -62,13 +62,13 @@ export const pageSEO: PageSEOContract = {
     geo: { lat: 55.678, lng: 37.263 },
     openingHours: ['Mo-Su 00:00-23:59'],
     areaServed: AREAS.map((a) => a.name),
-    priceRange: `от ${Math.min(...FLEET.map((u) => u.shift)).toLocaleString('ru-RU')} ₽ за смену`,
+    priceRange: `от ${SERVICES_FROM.toLocaleString('ru-RU')} ₽ за смену`,
     foundingDate: '2016',
     services: [
-      { name: 'Компактная автовышка 16 м: проезд 2,8 м', description: 'Покраска коттеджа, мойка окон, спил и кронирование; от 2 часов, подача 24/7', price: FLEET.find((u) => u.id === 'agp-16')?.shift ?? SERVICES_FROM, priceUnit: 'смена', audience: 'Частные дома, коттеджи, срубы' },
-      { name: 'Аренда автовышки 22 м', description: 'Люлька на 2 человека, вылет 8,1 м, работа на высоте', price: SERVICES_FROM, priceUnit: 'смена', audience: 'Фасадные и кровельные подрядчики' },
-      { name: 'Автокран 25 т с монтажной схемой', description: 'Стрела 9–21 м, гусёк 9 м, приборы безопасности', price: 21500, priceUnit: 'смена' },
-      { name: 'Земляные работы экскаватором 20 т', description: 'Траншея до 3,6 м, обратная засыпка, планировка', price: 15600, priceUnit: 'смена' }
+      { name: 'Компактная автовышка 16 м: проезд 2,8 м', description: 'Покраска коттеджа, мойка окон, купола и колокола, спил и кронирование; от 2 часов, подача 24/7', price: shiftOf('agp-16'), priceUnit: 'смена', audience: 'Частные дома, коттеджи, срубы' },
+      { name: `Автовышки ${AERIAL_RANGE}`, description: 'Люлька на 2 человека, поворот 360°, работа по наряду-допуску и ППР', price: shiftFromCategory('aerial'), priceUnit: 'смена', audience: 'Фасадные и кровельные подрядчики' },
+      { name: `Автокраны ${CRANE_RANGE} с монтажной схемой`, description: 'Гусёк 9 м, ограничитель нагрузки, ППР готовим сами', price: shiftFromCategory('crane'), priceUnit: 'смена' },
+      { name: 'Земляные работы: от мини-экскаватора до 20 т', description: 'Траншея до 3,6 м, планировка под плиту, обратная засыпка с трамбовкой', price: shiftFromCategory('earth'), priceUnit: 'смена' }
     ],
     sameAs: ['https://vk.com/vylet.example', 'https://t.me/vylet_example']
   }
