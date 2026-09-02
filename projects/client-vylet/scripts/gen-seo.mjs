@@ -56,3 +56,15 @@ fs.mkdirSync(path.join(root, 'src/generated'), { recursive: true });
 fs.writeFileSync(path.join(root, 'src/generated/seo-graph.json'), graph);
 
 console.log(`\x1b[32m✓ index.html обновлён: title ${check.lengths.title} симв., description ${check.lengths.description} симв., 1 h1, граф ${(JSON.parse(graph)['@graph'] ?? []).length} узла\x1b[0m`);
+// Проверка og-карточки: файл обязателен, иначе соцсеть покажет пустую превьюшку.
+const ogRaw = pageSEO.openGraph?.image ?? pageSEO.openGraph?.imageUrl ?? '';
+const ogUrl = String(typeof ogRaw === 'object' && ogRaw !== null ? ogRaw.url ?? '' : ogRaw).replace(/^https?:\/\/[^/]+/u, '');
+if (ogUrl && ogUrl.startsWith('/')) {
+  const ogPath = path.join(root, 'public', ogUrl.replace(/^\//, ''));
+  if (!fs.existsSync(ogPath)) {
+    console.log(`⚠ og-картинка ${ogUrl} не найдена в public/ — соберите: studio photo <файл> --slot=... --og`);
+  } else {
+    const kb = Math.round(fs.statSync(ogPath).size / 1024);
+    console.log(kb > 200 ? `⚠ og-картинка ${kb} КБ — соцсети обрезают тяжёлые превью, жмите --quality 76` : `✓ og-картинка ${kb} КБ`);
+  }
+}

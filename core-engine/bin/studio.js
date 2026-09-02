@@ -11,6 +11,7 @@ import { auditProject, renderAudit } from '../lib/audit.js';
 import { scaffold, archetypeCssBlock } from '../lib/scaffolder.js';
 import { harvest } from '../lib/harvester.js';
 import { inspectVault, vaultAdvisories } from '../lib/vault.js';
+import * as photos from '../lib/photos.js';
 import { color, bar, pad } from '../lib/fsx.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -170,6 +171,67 @@ async function main() {
       break;
     }
 
+    // ───────────────────────────────────────────────────────────── photo ────
+    case 'photo':
+    case 'import-photo': {
+      const projectArg = flagValue('project', positional.find((a) => a.startsWith('client-')) ?? 'client-vylet');
+      const dir = path.isAbsolute(projectArg) ? projectArg : path.join(rootDir, 'projects', projectArg.replace(/^projects\//, ''));
+
+      if (flags.has('--list')) {
+        const rows = await photos.listSlots(dir);
+        console.log(`${color.bold}слоты кадров · ${path.basename(dir)}${color.reset}\n`);
+        for (const row of rows) {
+          const mark = row.filled ? `${color.green}✓ файл на месте${color.reset}` : `${color.yellow}· пусто${color.reset}`;
+          console.log(`  ${pad(row.photo, 18)} ${pad(row.model, 36)} кадр ${pad(row.ratio, 6)} ${mark}`);
+        }
+        const free = rows.filter((r) => !r.filled).length;
+        console.log(`\n  занято ${rows.length - free} из ${rows.length}; следующий снимок: studio photo <файл> --slot=${rows.find((r) => !r.filled)?.photo ?? '<slot>'} --link=${rows.find((r) => !r.filled)?.id ?? '<id>'}\n`);
+        break;
+      }
+
+      const file = positional[0];
+      if (!file) {
+        console.error(`${color.red}Нужен файл: studio photo ~/IMG_0001.jpg --slot=aerial-22 --link=agp-22${color.reset}`);
+        console.log(`${color.dim}список слотов: studio photo --list${color.reset}`);
+        process.exit(2);
+      }
+
+      try {
+        const report = await photos.importPhoto({
+          file: path.resolve(file),
+          projectDir: dir,
+          slot: flagValue('slot', flagValue('name')),
+          frame: flagValue('frame', null),
+          keepNative: flags.has('--native'),
+          focus: flagValue('focus', 'center'),
+          maxWidth: parseInt(flagValue('max', '1600'), 10),
+          quality: parseInt(flagValue('quality', '82'), 10),
+          format: flagValue('format', 'jpeg'),
+          blur: flagValue('blur', null),
+          og: flags.has('--og'),
+          link: flagValue('link', null),
+          dryRun: flags.has('--dry')
+        });
+        console.log(`\n${color.bold}фотоприёмка · слот ${report.slot}${color.reset}${report.dryRun ? color.dim + ' · проверка, файл не записан' + color.reset : ''}`);
+        console.log(`  исходник ${report.sourceSize} → ${report.result} · кадр ${report.ratio} · потеряно по короткой стороне ${report.croppedPx}px`);
+        console.log(`  вес      ${report.weight.kb} КБ — ${report.weight.ok ? color.green + report.weight.hint : color.yellow + report.weight.hint}${color.reset}`);
+        if (report.written) console.log(`  записан  ${color.green}${report.written}${color.reset}`);
+        if (report.og) console.log(`  og-карта ${report.og.file} ${report.og.size} · ${report.og.kb} КБ`);
+        if (report.linked) console.log(`  каталог  ${color.green}${report.linked}${color.reset}`);
+        for (const note of report.notes) console.log(`  ${color.dim}· ${note}${color.reset}`);
+        for (const warn of report.warnings) console.log(`  ${color.yellow}▲ ${warn}${color.reset}`);
+        if (!report.dryRun) {
+          console.log(`\n  ${color.dim}дальше: npm run build --workspace=projects/${path.basename(dir)} && node core-engine/bin/studio.js audit projects/${path.basename(dir)}${color.reset}\n`);
+        } else {
+          console.log('');
+        }
+      } catch (error) {
+        console.error(`${color.red}✗ приёмка не удалась: ${error.message}${color.reset}`);
+        process.exit(1);
+      }
+      break;
+    }
+
     // ─────────────────────────────────────────────────────────────── help ───
     case 'help':
     default:
@@ -185,6 +247,10 @@ async function main() {
 
   ${color.yellow}studio harvest <project> <block> [category]${color.reset} [--note=…]
       Деперсонализация и перенос блока в library/<category>/ с манифестом и sha256-подписью.
+
+  ${color.yellow}studio photo <файл> --slot=<slot> [--link=<id>]${color.reset} [--frame=3/2] [--focus=auto] [--og] [--dry]
+      Приёмка фото клиента: убрать letterbox, привести к кадру слота, срезать EXIF/GPS,
+      вписать в catalog.ts, уложить в бюджет веса. --list — какие слоты ещё пустые.
 
   ${color.yellow}studio vault${color.reset}
       Инвентарь ассетов с чтением заголовков форматов (PNG/JPEG/WebP/GLB/Draco/WOFF2/WAV).

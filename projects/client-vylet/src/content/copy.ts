@@ -139,7 +139,16 @@ export const DOCS = {
   warning: 'Работы под ЛЭП и в охранной зоне газопровода — только с письмом сетевой организации. Без него кран не выезжает: это не «перестраховка», а правило, за которое отвечают обе стороны: письмо сетевой ждём до 3 рабочих дней.'
 };
 
-export const CASES = {
+export interface CaseItem {
+  title: string;
+  unit: string;
+  photo: string;
+  photoRatio?: string;
+  metrics: Array<{ value: string; label: string }>;
+  body: string;
+}
+
+export const CASES: { index: string; h2: string; items: CaseItem[] } = {
   index: '06',
   h2: 'Объекты, где техника уже стояла',
   items: [

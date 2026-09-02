@@ -27,6 +27,40 @@ interface FileSource {
 const WRITE_RE = /\.(style\.[\w.]+\s*=|setAttribute\(|classList\.(?:add|remove|toggle)\(|animate\()/;
 const READ_RE = /(?:offset(?:Width|Height|Top|Left)|client(?:Width|Height|Top|Left)|getBoundingClientRect\(|scrollHeight|scrollTop)/;
 
+/**
+ * Индекс, до которого строка является кодом: строковые литералы и строчные комментарии
+ * учитываются, поэтому `<img>` в комментарии не превращается в блокирующее нарушение.
+ * Блочные комментарии трогаем грубо: строка, начавшаяся со `*` или с «звёздочка-слэш»,
+ * считается комментарием целиком.
+ */
+function commentFreeEnd(line: string): number {
+  const trimmed = line.trimStart();
+  if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) return 0;
+  let i = 0;
+  while (i < line.length) {
+    const ch = line[i];
+    const two = line.slice(i, i + 2);
+    if (ch === '"' || ch === "'" || ch === '`') {
+      i++;
+      while (i < line.length && line[i] !== ch) {
+        if (line[i] === '\\') i++;
+        i++;
+      }
+      i++;
+      continue;
+    }
+    if (two === '//') return i;
+    if (two === '/*') {
+      const close = line.indexOf('*/', i + 2);
+      if (close === -1) return i;
+      i = close + 2;
+      continue;
+    }
+    i++;
+  }
+  return line.length;
+}
+
 export class StaticCodeAuditor {
   public audit(sources: FileSource[]): CodeAuditReport {
     const violations: CodeViolation[] = [];
@@ -124,7 +158,10 @@ export class StaticCodeAuditor {
           });
         }
         // 7. Картинки без dimensions / alt
-        const imgTag = line.match(/<img\b[^>]*>/);
+        // Комментарий с <img> в тексте — не нарушение: проверяем только код.
+        const imgTag = /\/\*|\*\/|^\s*\*/.test(line) || commentFreeEnd(line) <= line.indexOf('<img')
+          ? null
+          : line.slice(0, commentFreeEnd(line)).match(/<img\b[^>]*>/);
         if (imgTag) {
           const tag = imgTag[0];
           if (!/alt=/.test(tag)) {

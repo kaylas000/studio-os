@@ -94,7 +94,9 @@ npm run smoke                        # сборка клиента + монти�
 npx studio tokens cyber-tech projects/client-vylet   # перегенерить src/styles/archetype.css из TokenEngine
 npx studio archetypes                                 # APCA-статус всех 5 архетипов
 npx studio vault                                      # инвентарь ассетов с чтением заголовков форматов
+npx studio photo ~/IMG_0001.jpg --slot=aerial-22 --link=agp-22 --og   # приёмка фото клиента
 npx studio harvest client-vylet 02-FleetTable sections # деперсонализация и перенос блока в library/
+npx studio photo --list                               # какие фотослоты проекта ещё пустые
 ```
 
 ---
@@ -127,6 +129,9 @@ npx studio harvest client-vylet 02-FleetTable sections # деперсонали�
   `padding: var(--a) var(--b)` больше не даёт «лишние» пиксели), ReadabilityAnalyzer видит перенос строки
   как границу смыслового блока, FactDensityScorer игнорирует ИНН, телефоны, координаты и номера версий,
   но засчитывает деньги, температуры и длительности. Номера строк в отчёте — реальные строки файла.
+- **Фотоприёмка в ядре** (`studio photo`): EXIF-поворот, срез letterbox-полей, крой под кадр слота с
+  автофокусом по деталям, снятие GPS, бюджет веса 220 КБ, привязка `photo`/`photoRatio` в каталог,
+  `public/og.jpg` для соцсетей и `--blur` для госномеров. `gen-seo` ругается, если og-файла нет.
 - **Показательный провал**: `npx studio audit showcase-site` — Originality 64/100, 146 off-scale
   отступов и слоп-тексты. Витрина демонстрирует системы, но сама стандартам ещё не соответствует.
 

@@ -105,6 +105,7 @@ export function FleetTable() {
                       name={unit.photo}
                       alt={`${unit.model} на площадке парка в Одинцово`}
                       caption={`${unit.photo}.jpg`}
+                      ratio={unit.photoRatio ?? '3/2'}
                     />
                     <dl className="total__rows">
                       <div className="total__row">

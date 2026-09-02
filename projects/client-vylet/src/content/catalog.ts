@@ -32,6 +32,8 @@ export interface Unit {
   ground: string;
   crew: number;
   photo: string;
+  /** кадр фотослота: «3/2» по умолчанию, вертикальные снимки — «3/4» */
+  photoRatio?: string;
   available: number;
   total: number;
 }

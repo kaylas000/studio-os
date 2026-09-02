@@ -17,7 +17,7 @@ export function ObjectCases() {
           {CASES.items.map((item) => (
             <article className="case" key={item.title} data-reveal>
               <div className="case__media">
-                <PhotoSlot name={item.photo} alt={`${item.title}: ${item.unit} в работе`} caption={item.photo} />
+                <PhotoSlot name={item.photo} alt={`${item.title}: ${item.unit} в работе`} caption={item.photo} ratio={item.photoRatio ?? '3/2'} />
               </div>
               <div className="stack-16">
                 <p className="kicker">{item.unit}</p>

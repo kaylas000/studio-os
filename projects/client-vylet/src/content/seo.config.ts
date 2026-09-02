@@ -25,7 +25,7 @@ export const pageSEO: PageSEOContract = {
     title: 'ВЫЛЕТ · спецтехника на смену',
     description: '34 единицы в Одинцово. Подача от 90 минут.',
     type: 'website',
-    image: { url: `${BASE}/og.png`, width: 1200, height: 630, alt: 'Автовышка АГП-22.02 на объекте в Одинцово' },
+    image: { url: `${BASE}/og.jpg`, width: 1200, height: 630, alt: 'Автовышка АГП-22.02 на объекте в Одинцово' },
     locale: 'ru_RU'
   },
   faq: [
@@ -47,7 +47,7 @@ export const pageSEO: PageSEOContract = {
     displayName: 'ВЫЛЕТ · спецтехника',
     url: BASE,
     logo: `${BASE}/logo.svg`,
-    image: `${BASE}/og.png`,
+    image: `${BASE}/og.jpg`,
     description:
       'Аренда и заказ спецтехники в Одинцово: автовышки, автокраны, крано-манипуляторные установки, экскаваторы и тракторы с экипажем. Собственный сервисный участок.',
     phone: '+7 498 000-11-24',

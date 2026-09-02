@@ -170,6 +170,35 @@ const joined19 = prose19.map((c) => c.text).join(" | ");
 assert(/мы предлагаем/iu.test(joined19) && /не просто/iu.test(joined19), "19a. Extractor находит копипаст после строк с апострофами");
 assert(prose19.find((c) => /мы предлагаем/iu.test(c.text))?.line === 3, "19b. Номера строк прозы указывают на файл, а не на выжимку");
 
+// 20. Фотоприёмка: letterbox, кадр, бюджет веса
+const photos = await import('./core-engine/lib/photos.js');
+const letterbox = Array.from({ length: 60 }, (_, i) => (i < 10 || i >= 50 ? { mean: 2, spread: 1 } : { mean: 120, spread: 40}));
+const trimmed = photos.trimProfile(letterbox);
+assert(trimmed.offset === 10 && trimmed.length === 40 && trimmed.trimmed === 20, "20a. Чёрные полосы телефона срезаются по профилю яркости");
+const night = Array.from({ length: 60 }, () => ({ mean: 5, spread: 90 }));
+assert(photos.trimProfile(night).trimmed === 0, "20b. Тёмный сюжет (ночная смена) не режется");
+const box = photos.cropBox(1600, 1200, 3, 2, 'center');
+assert(box.width === 1600 && box.height === 1067 && box.top === 67 && box.axis === 'y', "20c. Кадр 3:2 из 4:3 режется по вертикали и центрируется");
+assert(photos.pickRatio(4000, 3000).key === '4/3' && photos.pickRatio(3000, 4000).key === '3/4', "20d. Кадр подбирается к соотношению исходника");
+assert(photos.focusFromEnergy([1, 1, 1, 9, 9, 9, 1, 1], 3) === 0.6, "20e. Автофокус ищет полосу с максимумом деталей");
+assert(photos.weightVerdict(300 * 1024).ok === false && photos.weightVerdict(120 * 1024).ok === true, "20f. Бюджет веса снимка проверяется");
+const region = photos.resolveRegion('0.62,0.71,0.18,0.05', 1600, 1067);
+assert(region.left === 992 && region.width === 288, "20g. Зона размытия считается в долях и пикселях");
+let regionFailed = false;
+try { photos.resolveRegion('0.1,0.2', 100, 100); } catch { regionFailed = true; }
+assert(regionFailed, "20h. Кривая зона размытия — ошибка, а не тихий пропуск");
+
+// 21. Привязка фото к записи каталога/кейса
+const sampleUnit = "{ id: 'agp-22', model: 'X', photo: 'aerial-22', available: 3 }";
+const linked = photos.applyCatalogLink(sampleUnit, 'agp-22', { photo: 'aerial-22', ratio: '3/4' });
+assert(/photoRatio: '3\/4'/.test(linked.code) && linked.changed, "21a. catalog.ts получает photo и photoRatio");
+const noChange = photos.applyCatalogLink(sampleUnit, 'agp-22', { photo: 'aerial-22' });
+assert(noChange.changed === false, "21b. Повторная приёмка не плодит дублей поля");
+const sampleCase = "{\n  title: 'ЖК',\n  metrics: [{ value: '1', label: 'смен' }],\n  photo: 'case-facade'\n}";
+const linkedCase = photos.applyCatalogLink(sampleCase, '#ЖК', { photo: 'case-facade', ratio: '4/3' });
+assert(linkedCase.changed && /photoRatio: '4\/3'/.test(linkedCase.code), "21c. многострочный кейс с вложенными {} тоже правится");
+assert(linkedCase.code.endsWith('}'), "21d. после правки объект остаётся валидным");
+
 console.log("\n==================================================");
 const pct = total ? Math.round((passed / total) * 100) : 0;
 console.log(`📊 ИТОГ: пройдено ${passed} из ${total} (${pct}%)`);
