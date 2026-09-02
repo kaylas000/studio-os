@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { CATEGORIES, FLEET, fleetByCategory, type Category } from '../content/catalog';
+import { CATEGORIES, FLEET, fleetByCategory, SHIFTS, type Category } from '../content/catalog';
 import { FLEET_COPY } from '../content/copy';
 import { PhotoSlot } from '../components/PhotoSlot';
 import { scrollToId } from '../engine/useMotion';
@@ -115,6 +115,10 @@ export function FleetTable() {
                       <div className="total__row">
                         <dt>Условия стоянки</dt>
                         <dd>{unit.ground}</dd>
+                      </div>
+                      <div className="total__row">
+                        <dt>Минимальный заказ</dt>
+                        <dd>{unit.minHours ? `от ${unit.minHours} ч` : `смена ${SHIFTS.hours} ч`}</dd>
                       </div>
                       <div className="total__row">
                         <dt>Экипаж</dt>

@@ -64,7 +64,7 @@ export function OrderForm() {
             {ORDER.consent}
           </p>
         </header>
-        <p className="section-index mono">Пн–Вс 08:00–20:00 · +7 498 000-11-24</p>
+        <p className="section-index mono">Круглосуточно, без выходных · +7 498 000-11-24</p>
 
         <div style={{ gridColumn: '1 / -1' }}>
           {payload ? (

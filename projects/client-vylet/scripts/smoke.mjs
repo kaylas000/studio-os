@@ -104,7 +104,9 @@ const checks = [
   ['touch-target у кнопки', Boolean(doc.querySelector('.btn'))],
   ['число парка в кикере = сумма catalog.ts', /\d+ единиц[аы]?\s+в\s+парке/.test(doc.querySelector('.hero__kicker, .kicker')?.textContent ?? '')],
   ['строка ISUZU в таблице парка', /ISUZU ELF/.test(doc.getElementById('fleet')?.textContent ?? '')],
-  ['JSON-LD в разметке', /application\/ld\+json/.test(doc.documentElement.innerHTML)]
+  ['JSON-LD в разметке', /application\/ld\+json/.test(doc.documentElement.innerHTML)],
+  ['пресеты времени в калькуляторе (2 ч · смена · сутки)', /минимум 2 ч/.test(doc.getElementById('calc')?.textContent ?? '') && /сутки/.test(doc.getElementById('calc')?.textContent ?? '')],
+  ['JSON-LD объявляет подачу 24/7', /"opens":"00:00"/.test(html) && /"closes":"23:59"/.test(html)]
 ];
 
 let ok = true;

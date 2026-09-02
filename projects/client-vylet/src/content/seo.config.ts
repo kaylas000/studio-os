@@ -10,7 +10,7 @@ const BASE = 'https://vylet.example';
 export const pageSEO: PageSEOContract = {
   title: 'Автовышки, краны и земтехника на смену — ВЫЛЕТ, Одинцово',
   description:
-    `Парк ${fleetLabel()} в Одинцово: автовышки ${AERIAL_RANGE}, автокраны ${CRANE_RANGE}, манипуляторы, экскаваторы с молотом. Подача от 90 минут, смена ${SHIFTS.hours} ч, наряд-допуск готовим сами.`,
+    `Парк ${fleetLabel()} в Одинцово: автовышки ${AERIAL_RANGE} — от компактной с проездом 2,8 м, автокраны ${CRANE_RANGE}, манипуляторы, экскаваторы. От 2 часов, смена, сутки, 24/7`,
   canonical: `${BASE}/`,
   robots: 'index, follow, max-image-preview:large',
   lang: 'ru-RU',
@@ -60,11 +60,12 @@ export const pageSEO: PageSEOContract = {
       country: 'RU'
     },
     geo: { lat: 55.678, lng: 37.263 },
-    openingHours: ['Mo-Fr 08:00-20:00', 'Sa-Su 08:00-20:00'],
+    openingHours: ['Mo-Su 00:00-23:59'],
     areaServed: AREAS.map((a) => a.name),
     priceRange: `от ${Math.min(...FLEET.map((u) => u.shift)).toLocaleString('ru-RU')} ₽ за смену`,
     foundingDate: '2016',
     services: [
+      { name: 'Компактная автовышка 16 м: проезд 2,8 м', description: 'Покраска коттеджа, мойка окон, спил и кронирование; от 2 часов, подача 24/7', price: FLEET.find((u) => u.id === 'agp-16')?.shift ?? SERVICES_FROM, priceUnit: 'смена', audience: 'Частные дома, коттеджи, срубы' },
       { name: 'Аренда автовышки 22 м', description: 'Люлька на 2 человека, вылет 8,1 м, работа на высоте', price: SERVICES_FROM, priceUnit: 'смена', audience: 'Фасадные и кровельные подрядчики' },
       { name: 'Автокран 25 т с монтажной схемой', description: 'Стрела 9–21 м, гусёк 9 м, приборы безопасности', price: 21500, priceUnit: 'смена' },
       { name: 'Земляные работы экскаватором 20 т', description: 'Траншея до 3,6 м, обратная засыпка, планировка', price: 15600, priceUnit: 'смена' }

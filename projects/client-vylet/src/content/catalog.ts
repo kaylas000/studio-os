@@ -26,6 +26,8 @@ export interface Unit {
   extraHour: number;
   /** минимальный заказ, смены */
   minOrder: number;
+  /** заказ короче смены, в часах (компактная автовышка — от 2 ч) */
+  minHours?: number;
   /** наработка, м/ч */
   hours: number;
   outreach: string;
@@ -40,7 +42,7 @@ export interface Unit {
 
 export const FLEET: Unit[] = [
   { id: 'agp-12', category: 'aerial', model: 'АГП-12.02 на ГАЗон Next', maker: 'Клинцы', year: 2021, reach: 12, capacity: 0.3, shift: 13200, extraHour: 1150, minOrder: 1, hours: 1840, outreach: 'Вылет люльки 5,4 м', ground: 'Аутригеры: 4,2 × 4,8 м', crew: 1, photo: 'aerial-12', available: 4, total: 5 },
-  { id: 'agp-18', category: 'aerial', model: 'АГП-18 на ISUZU ELF', maker: 'Клинцы', year: 2019, reach: 18, capacity: 0.3, shift: 15400, extraHour: 1250, minOrder: 1, hours: 3120, outreach: 'Люлька 2,2 × 0,9 м, поворот 360°', ground: 'Опоры 4,0 × 4,4 м, работа с обочины', crew: 1, photo: 'aerial-18', photoRatio: '3/4', available: 2, total: 3 },
+  { id: 'agp-16', category: 'aerial', model: 'АГП-16 на ISUZU ELF, компактная', maker: 'Клинцы', year: 2019, reach: 16, capacity: 0.3, shift: 14200, extraHour: 1250, minOrder: 1, minHours: 2, hours: 3120, outreach: 'Вверх 16 м, вбок 16,5 м за счёт поворота люльки — уровень 5-этажки', ground: 'Высота проезда 2,8 м; с компрессором стравливаем шины и проходим ниже', crew: 1, photo: 'aerial-16', photoRatio: '3/4', available: 2, total: 3 },
   { id: 'agp-22', category: 'aerial', model: 'АГП-22.02 на Урал 4320', maker: 'Клинцы', year: 2020, reach: 22, capacity: 0.3, shift: 16800, extraHour: 1350, minOrder: 1, hours: 2960, outreach: 'Вылет 8,1 м, люлька 2,4 м', ground: 'Полный привод, бездорожье', crew: 1, photo: 'aerial-22', available: 3, total: 4 },
   { id: 'agp-34', category: 'aerial', model: 'AeroStol 34 VR на КАМАЗ', maker: 'Аэростол', year: 2022, reach: 34, capacity: 0.4, shift: 24500, extraHour: 1800, minOrder: 1, hours: 980, outreach: 'Поворотная часть 360°', ground: 'Город, проезды 3,5 м', crew: 1, photo: 'aerial-34', available: 2, total: 2 },
   { id: 'agp-44', category: 'aerial', model: 'УМ-341 44 м на МАЗ', maker: 'Урбан', year: 2019, reach: 44, capacity: 0.25, shift: 31000, extraHour: 2200, minOrder: 1, hours: 4120, outreach: 'Вертикальный подъём 44 м', ground: 'Площадка 6 × 8 м', crew: 2, photo: 'aerial-44', available: 1, total: 2 },

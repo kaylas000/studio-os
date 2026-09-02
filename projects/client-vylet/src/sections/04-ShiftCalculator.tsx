@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { EXTRAS, FLEET, SHIFTS } from '../content/catalog';
 import { CALC_COPY } from '../content/copy';
 import { NumberTicker } from '../components/NumberTicker';
@@ -7,28 +7,55 @@ import { scrollToId } from '../engine/useMotion';
 const rub = (value: number) => `${value.toLocaleString('ru-RU')} ₽`;
 const KM_RATE = 46; // ₽/км плеча сверх 12 км — черновик, править в catalog.ts
 
+// Пресеты ровно те, о которых говорит парк: 2 часа, смена, сутки.
+const PRESETS: Array<{ label: string; hours: number }> = [
+  { label: `минимум`, hours: 2 },
+  { label: `смена ${SHIFTS.hours} ч`, hours: SHIFTS.hours },
+  { label: 'сутки', hours: 24 },
+  { label: 'двое суток', hours: 48 }
+];
+
+/**
+ * Цена времени: до смены — по прайсу часа, дальше смена целиком + часы сверх неё.
+ * Так «сутки» не превращаются в 24 одинаковых часа, а переработка остаётся видимой.
+ */
+export function timeCost(hours: number, unit: (typeof FLEET)[number]) {
+  const shiftPrice = unit.shift;
+  if (hours >= SHIFTS.hours) {
+    const full = Math.floor(hours / SHIFTS.hours);
+    const rest = hours - full * SHIFTS.hours;
+    return { base: shiftPrice * full + rest * unit.extraHour, full, rest };
+  }
+  return { base: hours * unit.extraHour, full: 0, rest: hours };
+}
+
 export function ShiftCalculator() {
-  const [unitId, setUnitId] = useState('agp-22');
-  const [shifts, setShifts] = useState(2);
+  const [unitId, setUnitId] = useState(FLEET.some((u) => u.id === 'agp-16') ? 'agp-16' : FLEET[0].id);
+  const unit = useMemo(() => FLEET.find((u) => u.id === unitId) ?? FLEET[0], [unitId]);
+  const minHours = unit.minHours ?? SHIFTS.hours;
+  const [hours, setHours] = useState(minHours);
   const [night, setNight] = useState(false);
   const [km, setKm] = useState(18);
   const [extras, setExtras] = useState<string[]>(['winch']);
 
-  const unit = useMemo(() => FLEET.find((u) => u.id === unitId) ?? FLEET[0], [unitId]);
+  // смена единицы не должна оставлять клиента с 2 часами там, где минимум — смена
+  useEffect(() => {
+    setHours((prev) => Math.max(unit.minHours ?? SHIFTS.hours, prev));
+  }, [unit]);
 
   const lines = useMemo(() => {
-    const base = unit.shift * shifts;
+    const { base, full, rest } = timeCost(hours, unit);
+    // плечо и «за выезд» считаются раз в сутки: 24 ч на объекте — одна доставка
+    const days = Math.max(1, Math.ceil(hours / 24));
     const nightUp = night ? Math.round(base * 0.25) : 0;
-    const mileage = Math.max(0, km - 12) * KM_RATE * shifts;
+    const mileage = Math.max(0, km - 12) * KM_RATE * days;
     const extraRows = EXTRAS.filter((e) => extras.includes(e.id)).map((e) => ({
       label: e.name,
-      value: e.per === 'смена' ? Math.round(base * e.price) || 0 : e.per === 'час' ? e.price * SHIFTS.hours : e.price * shifts
+      value: e.per === 'смена' ? Math.round(base * e.price) : e.per === 'час' ? e.price * hours : e.price * days
     }));
-    const flatExtras = EXTRAS.filter((e) => extras.includes(e.id) && e.per !== 'смена').reduce((s, e) => s + e.price * (e.per === 'час' ? SHIFTS.hours : shifts), 0);
-    const perShiftExtras = EXTRAS.filter((e) => extras.includes(e.id) && e.per === 'смена').reduce((s, e) => s + base * e.price, 0);
-    const total = base + nightUp + mileage + flatExtras + perShiftExtras;
-    return { base, nightUp, mileage, extraRows, total, hours: shifts * SHIFTS.hours };
-  }, [unit, shifts, night, km, extras]);
+    const total = base + nightUp + mileage + extraRows.reduce((sum, row) => sum + row.value, 0);
+    return { base, full, rest, nightUp, mileage, extraRows, total, days };
+  }, [unit, hours, night, km, extras]);
 
   const toggle = (id: string) => setExtras((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
@@ -52,23 +79,38 @@ export function ShiftCalculator() {
                 {FLEET.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.model} — {rub(u.shift)}/смена
+                    {u.minHours ? `, от ${u.minHours} ч` : ''}
                   </option>
                 ))}
               </select>
             </label>
 
+            <div className="chips" role="group" aria-label="Готовые варианты времени">
+              {PRESETS.filter((p) => p.hours >= minHours).map((preset) => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  className="chip"
+                  onClick={() => setHours(preset.hours)}
+                  aria-pressed={hours === preset.hours}
+                >
+                  {preset.label === 'минимум' ? `минимум ${preset.hours} ч` : preset.label}
+                </button>
+              ))}
+            </div>
+
             <label className="field">
               <span className="field__label">
-                Смен: {shifts} · всего {lines.hours} ч
+                Часов на объекте: {hours} {lines.full > 0 ? `· ${lines.full} смена${lines.full > 1 ? 'ы' : ''}${lines.rest ? ` + ${lines.rest} ч` : ''}` : `· по прайсу часа ${rub(unit.extraHour)}`}
               </span>
               <input
                 type="range"
-                min={unit.minOrder}
-                max={14}
+                min={minHours}
+                max={48}
                 step={1}
-                value={shifts}
-                onChange={(e) => setShifts(Number(e.target.value))}
-                aria-label="Количество смен"
+                value={hours}
+                onChange={(e) => setHours(Number(e.target.value))}
+                aria-label="Часы на объекте"
               />
             </label>
 
@@ -115,9 +157,7 @@ export function ShiftCalculator() {
             </p>
             <div className="total__rows">
               <div className="total__row">
-                <span>
-                  Смена × {shifts} ({SHIFTS.hours} ч)
-                </span>
+                <span>Время на объекте: {hours} ч</span>
                 <b>{rub(lines.base)}</b>
               </div>
               {night ? (
@@ -133,11 +173,11 @@ export function ShiftCalculator() {
               {lines.extraRows.map((row) => (
                 <div className="total__row" key={row.label}>
                   <span>{row.label}</span>
-                  <b>{row.value ? rub(row.value) : rub(Math.round(lines.base * 0.25))}</b>
+                  <b>{row.value ? rub(row.value) : '—'}</b>
                 </div>
               ))}
               <div className="total__row">
-                <span>Простой сверх {SHIFTS.graceHours} ч</span>
+                <span>Час сверх смены и простой свыше {SHIFTS.graceHours} ч</span>
                 <b>{rub(unit.extraHour)}/ч</b>
               </div>
             </div>
