@@ -86,13 +86,15 @@ await import(pathToFileURL(path.join(dist, 'assets', entryName)).href);
 await new Promise((r) => setTimeout(r, 900));
 
 const doc = dom.window.document;
+const servicesText = doc.getElementById('services')?.textContent ?? '';
 const footerText = doc.querySelector('.disclaimer')?.textContent ?? doc.querySelector('footer')?.textContent ?? '';
 const checks = [
   ['#root не пустой', doc.getElementById('root')?.childElementCount > 0],
   ['h1 на месте', /Автовышки, краны и земтехника/.test(doc.querySelector('#hero-title, .seo-h1')?.textContent ?? '')],
   ['секция парка', Boolean(doc.getElementById('fleet'))],
   ['таблица техники заполнена', doc.querySelectorAll('.fleet tbody tr').length >= 8],
-  ['услуги', doc.querySelectorAll('.service').length === 6],
+  ['услуги', doc.querySelectorAll('.service').length >= 6],
+  ['услуга по рекламе, кондиционерам и СИП в сетке', /Наружная реклама/.test(servicesText) && /СИП/.test(servicesText) && /Кондиционеры/.test(servicesText)],
   ['калькулятор', Boolean(doc.querySelector('#calc select'))],
   ['шаги процесса', doc.querySelectorAll('.step').length >= 4],
   ['радар зоны выезда', doc.querySelectorAll('.areas li').length >= 4],

@@ -68,7 +68,10 @@ export const pageSEO: PageSEOContract = {
       { name: 'Компактная автовышка 16 м: проезд 2,8 м', description: 'Покраска коттеджа, мойка окон, купола и колокола, спил и кронирование; от 2 часов, подача 24/7', price: shiftOf('agp-16'), priceUnit: 'смена', audience: 'Частные дома, коттеджи, срубы' },
       { name: `Автовышки ${AERIAL_RANGE}`, description: 'Люлька на 2 человека, поворот 360°, работа по наряду-допуску и ППР', price: shiftFromCategory('aerial'), priceUnit: 'смена', audience: 'Фасадные и кровельные подрядчики' },
       { name: `Автокраны ${CRANE_RANGE} с монтажной схемой`, description: 'Гусёк 9 м, ограничитель нагрузки, ППР готовим сами', price: shiftFromCategory('crane'), priceUnit: 'смена' },
-      { name: 'Земляные работы: от мини-экскаватора до 20 т', description: 'Траншея до 3,6 м, планировка под плиту, обратная засыпка с трамбовкой', price: shiftFromCategory('earth'), priceUnit: 'смена' }
+      { name: 'Земляные работы: от мини-экскаватора до 20 т', description: 'Траншея до 3,6 м, планировка под плиту, обратная засыпка с трамбовкой', price: shiftFromCategory('earth'), priceUnit: 'смена' },
+      { name: 'Наружная реклама: вывески, баннеры, подсветка', description: 'Монтаж и демонтаж вывесок и баннерных линий с люльки, до 70 м', price: shiftFromCategory('aerial'), priceUnit: 'смена', audience: 'Рекламные производства и сети' },
+      { name: 'Кондиционеры и приточка на фасаде', description: 'Вынос и крепление наружных блоков, кронштейны, трасса; компактная АГП-16 проходит в арку 2,8 м', price: shiftOf('agp-16'), priceUnit: 'смена' },
+      { name: 'Водосток, жесть и СИП на высоте', description: 'Жёлоб, отливы, парапеты, СИП по фасаду и опоре, прожекторы', price: shiftOf('agp-14'), priceUnit: 'смена' }
     ],
     sameAs: ['https://vk.com/vylet.example', 'https://t.me/vylet_example']
   }
