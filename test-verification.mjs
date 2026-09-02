@@ -199,6 +199,26 @@ const linkedCase = photos.applyCatalogLink(sampleCase, '#ЖК', { photo: 'case-f
 assert(linkedCase.changed && /photoRatio: '4\/3'/.test(linkedCase.code), "21c. многострочный кейс с вложенными {} тоже правится");
 assert(linkedCase.code.endsWith('}'), "21d. после правки объект остаётся валидным");
 
+// 22. Пакетная приёмка: WhatsApp присылает горсть, часто с дублями
+const waDir = fs.mkdtempSync('/tmp/wa-');
+for (const name of ['IMG-20260902-WA0001.jpg', 'IMG-20260902-WA0002.JPG', 'заметка.txt']) {
+  fs.writeFileSync(path.join(waDir, name), 'x');
+}
+const waRows = [
+  { photo: 'aerial-16', id: 'agp-16', ratio: '3/4', filled: false },
+  { photo: 'aerial-22', id: 'agp-22', ratio: '3/2', filled: true },
+  { photo: 'case-facade', id: '#ЖК', ratio: '3/2', filled: false }
+];
+const waPlan = photos.planIntake({ inputs: [waDir, path.join(waDir, 'IMG-20260902-WA0001.jpg')], rows: waRows, auto: true });
+assert(waPlan.jobs.length === 2 && waPlan.dropped === 1, "22a. Папка разворачивается, .txt игнорируется, дубль по имени отброшен");
+assert(waPlan.jobs.map((j) => j.slot).join(',') === 'aerial-16,case-facade', "22b. --auto кладёт в свободные слоты и обходит занятые");
+assert(waPlan.jobs.map((j) => j.link).join(',') === 'agp-16,#ЖК', "22c. --link подставляется из каталога, а не пишется руками");
+const waShort = photos.planIntake({ inputs: [waDir], rows: waRows, slots: ['aerial-16'] });
+assert(waShort.jobs.length === 0 && /слота/.test(waShort.error), "22d. Слотов меньше, чем снимков — ошибка, а не тихая потеря кадра");
+const waSingle = photos.planIntake({ inputs: [path.join(waDir, 'IMG-20260902-WA0001.jpg')], rows: waRows, single: 'aerial-16', link: 'agp-16' });
+assert(waSingle.jobs.length === 1 && waSingle.jobs[0].slot === 'aerial-16' && waSingle.jobs[0].link === 'agp-16', "22e. Одиночный файл со --slot работает как раньше");
+fs.rmSync(waDir, { recursive: true, force: true });
+
 console.log("\n==================================================");
 const pct = total ? Math.round((passed / total) * 100) : 0;
 console.log(`📊 ИТОГ: пройдено ${passed} из ${total} (${pct}%)`);

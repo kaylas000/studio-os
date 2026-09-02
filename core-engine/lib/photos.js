@@ -467,3 +467,49 @@ export async function listSlots(projectDir) {
   const unique = new Map(rows.map((r) => [`${r.photo}|${r.id}`, r]));
   return [...unique.values()];
 }
+
+const IMAGE_EXT = /\.(jpe?g|png|webp|avif)$/i;
+
+/**
+ * План пакетной приёмки: WhatsApp присылает пачку, причём один и тот же снимок — по
+ * два раза. `inputs` — файлы и/или папки, `rows` — то, что вернул listSlots().
+ * auto раскладывает по свободным слотам по порядку и сам берёт привязку из каталога,
+ * чтобы не плодить рассинхрон между кадром и записью парка.
+ * Возвращает { jobs, dropped, error }; при ошибке jobs пустой — тихой потери кадров нет.
+ */
+export function planIntake({ inputs = [], files = null, rows = [], slots = [], auto = false, single = null, link = null }) {
+  const collected = [];
+  if (files) collected.push(...files);
+  else {
+    for (const item of inputs) {
+      if (fs.existsSync(item) && fs.statSync(item).isDirectory()) {
+        for (const name of fs.readdirSync(item).sort()) if (IMAGE_EXT.test(name)) collected.push(path.join(item, name));
+      } else if (IMAGE_EXT.test(item)) {
+        collected.push(item);
+      }
+    }
+  }
+
+  const byName = new Map();
+  for (const file of collected) {
+    const key = path.basename(file).toLowerCase();
+    if (!byName.has(key)) byName.set(key, file);
+  }
+  const uniq = [...byName.values()];
+  const dropped = collected.length - uniq.length;
+  if (!uniq.length) return { jobs: [], dropped: 0, error: 'нет ни одного изображения (jpg/jpeg/png/webp/avif)' };
+
+  if (auto) {
+    const free = rows.filter((row) => !row.filled);
+    if (free.length < uniq.length) {
+      return { jobs: [], dropped, error: `свободных слотов ${free.length}, а снимков ${uniq.length} — часть некуда положить` };
+    }
+    return { jobs: uniq.map((file, i) => ({ file, slot: free[i].photo, link: free[i].id })), dropped, error: null };
+  }
+
+  if (uniq.length === 1 && single) return { jobs: [{ file: uniq[0], slot: single, link }], dropped, error: null };
+  if (slots.length >= uniq.length) {
+    return { jobs: uniq.map((file, i) => ({ file, slot: slots[i], link: uniq.length === 1 ? link : null })), dropped, error: null };
+  }
+  return { jobs: [], dropped, error: `на ${uniq.length} снимка нужно ${uniq.length} слота: --slots=a,b или --auto` };
+}

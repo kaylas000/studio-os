@@ -95,6 +95,7 @@ npx studio tokens cyber-tech projects/client-vylet   # перегенерить 
 npx studio archetypes                                 # APCA-статус всех 5 архетипов
 npx studio vault                                      # инвентарь ассетов с чтением заголовков форматов
 npx studio photo ~/IMG_0001.jpg --slot=aerial-22 --link=agp-22 --og   # приёмка фото клиента
+npx studio photo ~/uploads --auto                             # пачкой: свободные слоты по порядку, дубли по имени, --link из каталога
 npx studio harvest client-vylet 02-FleetTable sections # деперсонализация и перенос блока в library/
 npx studio photo --list                               # какие фотослоты проекта ещё пустые
 ```
@@ -132,6 +133,9 @@ npx studio photo --list                               # какие фотосл�
 - **Фотоприёмка в ядре** (`studio photo`): EXIF-поворот, срез letterbox-полей, крой под кадр слота с
   автофокусом по деталям, снятие GPS, бюджет веса 220 КБ, привязка `photo`/`photoRatio` в каталог,
   `public/og.jpg` для соцсетей и `--blur` для госномеров. `gen-seo` ругается, если og-файла нет.
+  Пачка (`--auto` или `--slots=a,b`) раскладывается планом `photos.planIntake`: папка разворачивается,
+  дубликаты по имени отбрасываются (мессенджер шлёт одно и то же дважды), занятые слоты обходятся,
+  нехватка слотов — ошибка, а не тихая потеря кадра.
 - **Показательный провал**: `npx studio audit showcase-site` — Originality 64/100, 146 off-scale
   отступов и слоп-тексты. Витрина демонстрирует системы, но сама стандартам ещё не соответствует.
 
