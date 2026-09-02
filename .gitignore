@@ -23,6 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 
+# Сгенерированные артефакты STUDIO OS
+studio.audit.json
+projects/*/src/generated/
+projects/*/public/photos/*
+!projects/*/public/photos/.gitkeep
+
 # Test reports
 coverage
 sweep-screenshots

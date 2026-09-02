@@ -1,0 +1,29 @@
+{
+  "name": "@studio-projects/client-vylet",
+  "version": "1.0.0",
+  "private": true,
+  "brand": "ВЫЛЕТ",
+  "archetype": "cyber-tech",
+  "standards": [
+    "01-animations",
+    "02-anti-slop",
+    "03-mobile",
+    "04-spacing",
+    "05-hollywood-intros",
+    "06-seo",
+    "07-archetypes",
+    "08-copywriting",
+    "09-quality"
+  ],
+  "clientAliases": [
+    "ВЫЛЕТ",
+    "ООО «КЛИЕНТ»"
+  ],
+  "createdAt": "2026-09-02T15:09:41.834Z",
+  "audit": {
+    "minOriginality": 75,
+    "minApcaBodyLc": 77.32,
+    "contrastAtScaffold": "pass",
+    "fontRisks": []
+  }
+}

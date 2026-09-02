@@ -1,24 +1,73 @@
-/* library/04-spacing/tokens.css */
-:root {
-  --spacing-0: 0px;
-  --spacing-0-5: 2px;
-  --spacing-1: 4px;
-  --spacing-1-5: 6px;
-  --spacing-2: 8px;
-  --spacing-3: 12px;
-  --spacing-4: 16px;
-  --spacing-5: 20px;
-  --spacing-6: 24px;
-  --spacing-8: 32px;
-  --spacing-10: 40px;
-  --spacing-12: 48px;
-  --spacing-16: 64px;
-  --spacing-20: 80px;
-  --spacing-24: 96px;
-  --spacing-32: 128px;
-  --spacing-48: 192px;
+/* library/04-spacing/tokens.css
+   SYS-04: единая шкала отступов.
+   --space-<px>    — канонические токены (используются <Box>/<Stack> и аудитом).
+   --spacing-<шаг> — legacy-алиасы для существующих проектов (не удалять).
+   Любое значение вне этого файла = off-scale → `studio audit` блокирует билд. */
 
-  /* Fluid Section & Container Gaps */
-  --fluid-section-gap: clamp(3rem, 2rem + 4vw, 8rem);
-  --fluid-container-pad: clamp(1rem, 0.5rem + 2vw, 3rem);
+:root {
+  /* ── канонические: имя = значение ─────────────────────────────── */
+  --space-0: 0px;
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-80: 80px;
+  --space-96: 96px;
+  --space-128: 128px;
+  --space-160: 160px;
+  --space-192: 192px;
+  --space-240: 240px;
+  --space-320: 320px;
+
+  /* ── legacy-алиасы (шаговая шкала) ────────────────────────────── */
+  --spacing-0: 0px;
+  --spacing-0-5: var(--space-2);
+  --spacing-1: var(--space-4);
+  --spacing-1-5: var(--space-6);
+  --spacing-2: var(--space-8);
+  --spacing-3: var(--space-12);
+  --spacing-4: var(--space-16);
+  --spacing-5: var(--space-20);
+  --spacing-6: var(--space-24);
+  --spacing-8: var(--space-32);
+  --spacing-10: var(--space-40);
+  --spacing-12: var(--space-48);
+  --spacing-16: var(--space-64);
+  --spacing-20: var(--space-80);
+  --spacing-24: var(--space-96);
+  --spacing-32: var(--space-128);
+  --spacing-48: var(--space-192);
+
+  /* ── fluid-отступы: дышат между 320 и 1920 без брейкпоинтов ───── */
+  --fluid-section-gap: clamp(48px, 3.5rem + 4vw, 160px);
+  --fluid-container-pad: clamp(16px, 0.6rem + 3vw, 48px);
+  --fluid-grid-gap: clamp(12px, 0.5rem + 1.4vw, 32px);
+  --fluid-card-pad: clamp(16px, 0.7rem + 1.2vw, 32px);
+
+  /* ── служебное: для радиусов/рамок, чтобы не плодить числа ────── */
+  --hairline: 1px;
+  --rule: 2px;
+  --rule-heavy: 3px;
 }
+
+/* Примитив-хелпер: <div class="stack-16"> вместо inline-стиля */
+.stack-4 { display: flex; flex-direction: column; gap: var(--space-4); }
+.stack-8 { display: flex; flex-direction: column; gap: var(--space-8); }
+.stack-12 { display: flex; flex-direction: column; gap: var(--space-12); }
+.stack-16 { display: flex; flex-direction: column; gap: var(--space-16); }
+.stack-24 { display: flex; flex-direction: column; gap: var(--space-24); }
+.stack-32 { display: flex; flex-direction: column; gap: var(--space-32); }
+.stack-48 { display: flex; flex-direction: column; gap: var(--space-48); }
+.stack-64 { display: flex; flex-direction: column; gap: var(--space-64); }
+
+.row-8 { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-8); }
+.row-12 { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-12); }
+.row-16 { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-16); }

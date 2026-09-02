@@ -1,4 +1,4 @@
-# STUDIO OS v2.0.0
+# STUDIO OS v2.1.0
 
 > **Мета-система веб-студии нового поколения, живая библиотека производственных модулей и интерактивный портал-шоукейс.**
 
@@ -61,10 +61,11 @@ studio-os/
 
 ## 🚀 Быстрый Старт
 
-### 1. Запуск интерактивного сайта-витрины студии:
+### 1. Поставить зависимости и запустить витрину:
 ```bash
-npm run dev
-# Открывает живой портал на http://localhost:3000
+npm install
+npm run dev                                        # сайт-витрина студии, http://localhost:3000
+npm run dev --workspace=projects/client-vylet        # клиентский проект (спецтехника, Cyber-Tech)
 ```
 
 ### 2. Создание нового клиентского проекта:
@@ -81,8 +82,41 @@ npx studio harvest cyber-hero components
 
 ### 4. Прогон полного аудита качества:
 ```bash
-npx studio audit
+npx studio audit                     # все проекты в projects/ + сводка по студии
+npx studio audit projects/client-vylet --quiet
+npx studio audit showcase-site --loose
+npm run verify                       # 21 тест детекторов (APCA, клише, спейсинг, Zero-Bug)
 ```
+
+### 5. Прочие команды ядра:
+```bash
+npx studio tokens cyber-tech projects/client-vylet   # перегенерить src/styles/archetype.css из TokenEngine
+npx studio archetypes                                 # APCA-статус всех 5 архетипов
+npx studio vault                                      # инвентарь ассетов с чтением заголовков форматов
+npx studio harvest client-vylet 02-FleetTable sections # деперсонализация и перенос блока в library/
+```
+
+---
+
+## 🔧 Что изменилось в v2.1.0
+
+- **Аудит стал настоящим.** `studio audit` читает исходники проекта и вызывает детекторы из `library/`:
+  клише, слоп-градиенты (ΔE CIE76 + структурные признаки), off-scale отступы, 19 вьюпортов,
+  APCA-контраст архетипа и брендовой палитры, факт-плотность, читаемость, PAS, layout thrashing,
+  `dispose()` WebGL и SEO-контракт (реальный импорт `src/content/seo.ts`). Результат —
+  `studio.audit.json` в проекте, блокирующие нарушения подсчитываются отдельно от предупреждений.
+- **`` и `\w` не знают кириллицы.** Вся regex-слой библиотеки переведён на `\p{L}` + флаг `u`:
+  до этого «350 000 руб» и «14 дней» не матчились вовсе, а факт-плотность врала в обе стороны.
+- **APCA реализована по-настоящему** (`library/07-archetypes/contrast.ts`) с калибровкой по якорям
+  106 / −108 / 62.7 Lc, и все 5 архетипов прошли собственный контраст-гейт (раньше падали 4 из 5).
+- **Шрифты архетипов** заменены на кириллица-совместимые: в стеках были Orbitron / Share Tech Mono /
+  Cinzel, у которых нет кириллицы — RU-текст уезжал в системный sans.
+- **`IntroEngine` больше не роняет страницу** при недоступном WebGL и корректно освобождает контекст;
+  `MotionGuard` (новый) — единый гейт движения: reduced-motion, Data Saver, батарея, слабый GPU.
+- **`studio harvest` и `studio vault` работают с файлами**: переписывание импортов на алиасы,
+  вырезание контактов и ИНН, sha256-подпись манифеста; чтение заголовков PNG/JPEG/WebP/GLB(Draco)/WOFF2.
+- **Показательный провал**: `npx studio audit showcase-site` — Originality 50/100, 146 off-scale
+  отступов и слоп-тексты. Витрина демонстрирует системы, но сама стандартам ещё не соответствует.
 
 ---
 

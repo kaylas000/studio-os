@@ -4,6 +4,11 @@ export class SpacingOverlay {
   private active: boolean = false;
   private approvedScale = [0, 2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96, 128, 160, 192];
   private overlays: HTMLElement[] = [];
+  private maxNodes: number;
+
+  constructor(maxNodes: number = 400) {
+    this.maxNodes = maxNodes;
+  }
 
   public toggle(): boolean {
     this.active = !this.active;
@@ -17,7 +22,11 @@ export class SpacingOverlay {
 
   private _renderOverlay() {
     this._clearOverlay();
-    const elements = document.querySelectorAll<HTMLElement>('body *:not(script):not(style)');
+    const all = Array.from(document.querySelectorAll<HTMLElement>('body *:not(script):not(style)'));
+      // Ограничитель: на длинных страницах 20 000 бейджей вешают сам оверлей
+      const elements = all
+        .filter((el) => !el.classList.contains('studio-spacing-badge'))
+        .slice(0, this.maxNodes);
 
     elements.forEach(el => {
       const comp = window.getComputedStyle(el);

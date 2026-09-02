@@ -1,0 +1,27 @@
+{
+  "name": "02-FleetTable",
+  "category": "sections",
+  "harvestedAt": "2026-09-02T15:26:07.722Z",
+  "originProject": "@studio-projects/client-vylet",
+  "originBlock": "02-FleetTable.tsx",
+  "archetype": "cyber-tech",
+  "files": [
+    "02-FleetTable.tsx"
+  ],
+  "lines": 152,
+  "externalDeps": [
+    "react"
+  ],
+  "stripped": 0,
+  "standards": [
+    "SYS-01",
+    "SYS-02",
+    "SYS-03",
+    "SYS-04",
+    "SYS-06",
+    "SYS-07",
+    "SYS-09"
+  ],
+  "integrity": "sha256:448f57f4db49b3e5",
+  "note": "Таблица парка с раскрытием карточки и фотослотами"
+}

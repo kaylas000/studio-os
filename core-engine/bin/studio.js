@@ -1,127 +1,207 @@
 #!/usr/bin/env node
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+// core-engine/bin/studio.js
+// Консольный оркестратор STUDIO OS. Команды делегируют в core-engine/lib/*,
+// аудит вызывает детекторы из /library — никаких захардкоженных «PASS».
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { auditProject, renderAudit } from '../lib/audit.js';
+import { scaffold, archetypeCssBlock } from '../lib/scaffolder.js';
+import { harvest } from '../lib/harvester.js';
+import { inspectVault, vaultAdvisories } from '../lib/vault.js';
+import { color, bar, pad } from '../lib/fsx.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '../../');
 
 const args = process.argv.slice(2);
-const command = args[0] || 'help';
+const command = args[0] && !args[0].startsWith('-') ? args[0] : 'help';
+const positional = args.slice(command === 'help' ? 0 : 1).filter((a) => !a.startsWith('-'));
+const flags = new Set(args.filter((a) => a.startsWith('--')));
+const flagValue = (name, fallback = undefined) => {
+  const hit = args.find((a) => a.startsWith(`--${name}=`));
+  return hit ? hit.split('=').slice(1).join('=') : fallback;
+};
 
-console.log(`\x1b[36m
+function header() {
+  console.log(`\x1b[36m
 ╔═══════════════════════════════════════════════════════════════════════════╗
-║                             STUDIO OS v2.0.0                              ║
-║     Production Core • Living Library • Meta-System Architecture           ║
+║                             STUDIO OS v2.1.0                              ║
+║     Production Core • Living Library • Real Audit Engine (9 SYS)           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 \x1b[0m`);
+}
 
-switch (command) {
-  case 'new':
-  case 'create': {
-    const projectName = args[1] || `project-${Date.now().toString().slice(-4)}`;
-    const archetype = args[2] || 'luxury-noir';
-    console.log(`🚀 [STUDIO OS]: Создание нового проекта "${projectName}" с архетипом "${archetype}"...`);
-    
-    const projectPath = path.join(rootDir, 'projects', projectName);
-    if (fs.existsSync(projectPath)) {
-      console.error(`\x1b[31m❌ Ошибка: Проект "${projectName}" уже существует!\x1b[0m`);
-      process.exit(1);
+async function main() {
+  header();
+
+  switch (command) {
+    // ───────────────────────────────────────────────────────────── new ─────
+    case 'new':
+    case 'create': {
+      const name = positional[0] ?? `project-${Date.now().toString().slice(-4)}`;
+      const archetype = positional[1] ?? 'cyber-tech';
+      const brand = flagValue('brand', name.replace(/^client-/, '').replace(/[-_]/g, ' ').toUpperCase());
+
+      console.log(`🚀 Каркас «${name}» · архетип ${archetype} · бренд «${brand}»`);
+      const res = await scaffold({ rootDir, name, archetype, brand, force: flags.has('--force') });
+      console.log(`${color.green}✓ ${res.files.length} файлов в ${path.relative(rootDir, res.dir)}${color.reset}`);
+      for (const f of res.files) console.log(`   ${color.dim}${f}${color.reset}`);
+      console.log(`
+   Дальше:  npm install && npm run dev --workspace=projects/${name}
+            studio audit projects/${name}
+   Фото клиента → projects/${name}/public/photos/  (см. .gitkeep)`);
+      break;
     }
 
-    fs.mkdirSync(projectPath, { recursive: true });
-    ['src/components', 'src/sections', 'src/styles', 'src/content', 'tests'].forEach(dir => {
-      fs.mkdirSync(path.join(projectPath, dir), { recursive: true });
-    });
+    // ─────────────────────────────────────────────────────────── harvest ────
+    case 'harvest': {
+      const project = positional[0];
+      const block = positional[1];
+      const category = positional[2] ?? 'components';
+      if (!project || !block) {
+        console.error(`${color.red}Нужны два аргумента: studio harvest <project> <block> [category]${color.reset}`);
+        console.log(`   пример: studio harvest client-vylet 05-Fleet sections`);
+        process.exit(2);
+      }
+      const projectDir = path.isAbsolute(project) ? project : path.join(rootDir, 'projects', project.replace(/^projects\//, ''));
+      const res = harvest({ rootDir, projectDir, block, category, note: flagValue('note', '') });
+      console.log(`${color.green}🌾 блок вычищен и положен в библиотеку${color.reset}`);
+      console.log(`   ${res.target}`);
+      console.log(`   файлов: ${res.manifest.files.length}, строк: ${res.manifest.lines}, вырезано персональных данных: ${res.manifest.stripped}`);
+      console.log(`   подпись: ${color.dim}${res.manifest.integrity}${color.reset}`);
+      if (res.manifest.externalDeps.length) console.log(`   внешние зависимости: ${res.manifest.externalDeps.join(', ')}`);
+      break;
+    }
 
-    // Создаем манифест проекта
-    const projectManifest = {
-      name: `@studio-projects/${projectName}`,
-      version: '1.0.0',
-      private: true,
-      archetype,
-      standards: [
-        '01-animations',
-        '02-anti-slop',
-        '03-mobile',
-        '04-spacing',
-        '05-hollywood-intros',
-        '06-seo',
-        '07-archetypes',
-        '08-copywriting',
-        '09-quality'
-      ],
-      created: new Date().toISOString()
-    };
-    fs.writeFileSync(path.join(projectPath, 'studio.project.json'), JSON.stringify(projectManifest, null, 2));
+    // ───────────────────────────────────────────────────────────── audit ────
+    case 'audit': {
+      const target = positional[0];
+      const dirs = target
+        ? [path.isAbsolute(target) ? target : path.join(rootDir, target.replace(/^\.?\/?projects\//, 'projects/'))]
+        : fs.existsSync(path.join(rootDir, 'projects'))
+          ? fs.readdirSync(path.join(rootDir, 'projects'), { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => path.join(rootDir, 'projects', d.name))
+          : [];
 
-    // Инжектируем базовые файлы
-    fs.writeFileSync(path.join(projectPath, 'src/content/seo.config.ts'), `// Strict SEO Contract
-export const pageSEO = {
-  title: "${projectName.toUpperCase()} — Next-Gen Production",
-  description: "Создано на базе монолитных стандартов качества STUDIO OS.",
-  canonical: "https://${projectName}.studio.app",
-  robots: "index, follow"
-};
+      if (!dirs.length) {
+        console.error(`${color.red}Нет проектов в projects/. Создайте: studio new client-demo cyber-tech${color.reset}`);
+        process.exit(2);
+      }
+
+      let failed = 0;
+      const summaries = [];
+      for (const dir of dirs) {
+        const result = await auditProject({ projectDir: dir, rootDir, strict: !flags.has('--loose') });
+        console.log(renderAudit(result, { showDetails: !flags.has('--quiet') }));
+        if (!flags.has('--no-report')) {
+          fs.writeFileSync(path.join(dir, 'studio.audit.json'), JSON.stringify(result, null, 2));
+          console.log(`${color.dim}   отчёт: ${path.relative(rootDir, path.join(dir, 'studio.audit.json'))}${color.reset}\n`);
+        }
+        if (flags.has('--json')) console.log(JSON.stringify(result));
+        summaries.push({ name: path.basename(dir), score: result.originality.score, blockers: result.blockers, warnings: result.warnings, passed: result.passed });
+        if (!result.passed) failed++;
+      }
+
+      if (dirs.length > 1) {
+        console.log(`${color.bold}СВОДКА ПО СТУДИИ${color.reset}`);
+        for (const s of summaries) {
+          console.log(`  ${pad(s.name, 26)} ${bar(s.score, 18)} ${pad(s.score + '/100', 8)} ${s.passed ? color.green + '✓ релиз' : color.red + `✗ блоков: ${s.blockers}`}${color.reset}  ${color.dim}warn ${s.warnings}${color.reset}`);
+        }
+        console.log('');
+      }
+      process.exit(failed && flags.has('--fail-on-error') ? 1 : 0);
+    }
+
+    // ────────────────────────────────────────────────────────────── vault ───
+    case 'vault': {
+      const groups = inspectVault(rootDir);
+      console.log(`${color.bold}Хранилище ассетов · library/assets-vault${color.reset}`);
+      for (const g of groups) {
+        const bytes = g.items.reduce((s, i) => s + i.bytes, 0);
+        console.log(`  ${pad(g.dir, 12)} ${pad(String(g.items.length) + ' файл(ов)', 12)} ${pad((bytes / 1024).toFixed(0) + ' КБ', 9)} ${color.dim}${g.exists ? g.abs.replace(rootDir + '/', '') : 'папки нет'}${color.reset}`);
+        for (const item of g.items) {
+          const meta = [item.dimensions ? `${item.dimensions.w}×${item.dimensions.h}` : null, item.container ? `${item.container}${item.draco ? '+draco' : ''}` : null, item.format, item.sampleRate ? item.sampleRate + ' Hz' : null, item.lines ? item.lines + ' строк' : null]
+            .filter(Boolean)
+            .join(' · ');
+          console.log(`      ${pad(item.name, 28)} ${pad((item.bytes / 1024).toFixed(1) + ' КБ', 10)} ${color.cyan}${meta}${color.reset}`);
+        }
+      }
+      const advice = vaultAdvisories(groups);
+      if (advice.length) {
+        console.log(`\n${color.yellow}Требования к наполнению:${color.reset}`);
+        for (const a of advice) console.log('  ' + a);
+      }
+      console.log('');
+      break;
+    }
+
+    // ───────────────────────────────────────────────────────────── tokens ───
+    case 'tokens': {
+      const engine = await import(path.join(rootDir, 'library/07-archetypes/TokenEngine.ts'));
+      const archetype = positional[0] ?? 'cyber-tech';
+      const project = positional[1];
+      if (!engine.ARCHETYPES[archetype]) {
+        console.error(`${color.red}Архетип «${archetype}» неизвестен: ${Object.keys(engine.ARCHETYPES).join(', ')}${color.reset}`);
+        process.exit(2);
+      }
+      const css = archetypeCssBlock(archetype, engine.toCssVars(archetype));
+      const report = engine.auditArchetypeContrast(archetype);
+      if (project) {
+        const file = path.join(rootDir, project, 'src/styles/archetype.css');
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(file, css);
+        console.log(`${color.green}✓ переписан ${path.relative(rootDir, file)}${color.reset}`);
+      } else {
+        console.log(css);
+      }
+      console.log(`${color.dim}APCA-аудит архетипа: ${report.ok ? 'зелёная зона' : 'есть провалы'} (min body Lc ${report.minBodyLc.toFixed(1)})${color.reset}`);
+      break;
+    }
+
+    // ────────────────────────────────────────────────────────── archetypes ──
+    case 'archetypes': {
+      const engine = await import(path.join(rootDir, 'library/07-archetypes/TokenEngine.ts'));
+      for (const [key, def] of Object.entries(engine.ARCHETYPES)) {
+        const report = engine.auditArchetypeContrast(key);
+        console.log(`  ${pad(key, 16)} ${pad(def.name, 16)} ${report.ok ? color.green + 'APCA ✓' : color.red + 'APCA ✗' + color.reset}  Lc body ${report.minBodyLc.toFixed(1).padStart(6)}  ${color.dim}${def.typography.fontHeading.split(',')[0]}${color.reset}`);
+      }
+      break;
+    }
+
+    // ─────────────────────────────────────────────────────────────── help ───
+    case 'help':
+    default:
+      console.log(`Доступные команды STUDIO OS:
+
+  ${color.yellow}studio new <name> <archetype>${color.reset} [--brand=X] [--force]
+      Каркас клиентского проекта в projects/<name>: 9 систем, алиасы @library, SEO-контракт, ErrorBoundary.
+
+  ${color.yellow}studio audit [projects/name]${color.reset} [--loose] [--json] [--quiet] [--no-report] [--fail-on-error]
+      Настоящий аудит: клише, слоп-градиенты, off-scale отступы, вьюпорты, APCA, факт-плотность,
+      читаемость, PAS, layout thrashing, dispose(), SEO-контракт. Пишет studio.audit.json.
+      Без аргумента — все проекты папки projects/.
+
+  ${color.yellow}studio harvest <project> <block> [category]${color.reset} [--note=…]
+      Деперсонализация и перенос блока в library/<category>/ с манифестом и sha256-подписью.
+
+  ${color.yellow}studio vault${color.reset}
+      Инвентарь ассетов с чтением заголовков форматов (PNG/JPEG/WebP/GLB/Draco/WOFF2/WAV).
+
+  ${color.yellow}studio tokens <archetype> [project]${color.reset}
+      Сгенерировать src/styles/archetype.css из TokenEngine и проверить контраст.
+
+  ${color.yellow}studio archetypes${color.reset}
+      APCA-статус всех 5 архетипов.
+
+  ${color.yellow}npm run dev --workspace=projects/<name>${color.reset}
 `);
-
-    console.log(`\x1b[32m✅ Проект успешно развернут в projects/${projectName}!\x1b[0m`);
-    console.log(`📦 Подключены все 9 систем библиотеки STUDIO OS.`);
-    console.log(`💡 Для запуска: cd projects/${projectName} && npm run dev\n`);
-    break;
+      break;
   }
-
-  case 'harvest': {
-    const blockName = args[1] || 'sample-block';
-    const category = args[2] || 'components';
-    console.log(`🌾 [STUDIO OS]: Харвестинг удачного блока "${blockName}" в библиотеку /library/${category}/...`);
-    
-    const targetDir = path.join(rootDir, 'library', category, blockName);
-    fs.mkdirSync(targetDir, { recursive: true });
-    
-    const manifest = {
-      name: blockName,
-      category,
-      harvestedAt: new Date().toISOString(),
-      testedStandards: ['Anti-Slop > 85', 'WCAG 2.2 AAA', '60 FPS Certified']
-    };
-    fs.writeFileSync(path.join(targetDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
-    
-    console.log(`\x1b[32m✨ Блок успешно сохранен в библиотеку студии и доступен для переиспользования во всех проектах!\x1b[0m\n`);
-    break;
-  }
-
-  case 'audit': {
-    console.log(`🔍 [STUDIO OS]: Запуск комплексного аудита стандартов проекта...`);
-    console.log(`  1. Anti-Slop Scanner: \x1b[32m[PASS]\x1b[0m Originality Score 92/100`);
-    console.log(`  2. Spacing Token Guard: \x1b[32m[PASS]\x1b[0m 0 произвольных пикселей`);
-    console.log(`  3. Touch-Target Matrix: \x1b[32m[PASS]\x1b[0m Все элементы >= 44x44px`);
-    console.log(`  4. SEO Schema Contract: \x1b[32m[PASS]\x1b[0m JSON-LD валидирован, ровно 1 h1`);
-    console.log(`  5. Performance & FPS: \x1b[32m[PASS]\x1b[0m Стабильные 60 FPS, утечек WebGL не обнаружено`);
-    console.log(`\x1b[32m🏆 ВСЕ 9 СИСТЕМ ВАЛИДИРОВАНЫ. ПРОЕКТ ГОТОВ К РЕЛИЗУ!\x1b[0m\n`);
-    break;
-  }
-
-  case 'vault': {
-    const vaultPath = path.join(rootDir, 'library/assets-vault');
-    console.log(`📁 [STUDIO OS]: Обзор хранилища ассетов (${vaultPath}):`);
-    ['3d-models', 'shaders', 'sounds', 'fonts', 'textures'].forEach(dir => {
-      const p = path.join(vaultPath, dir);
-      const count = fs.existsSync(p) ? fs.readdirSync(p).length : 0;
-      console.log(`  • ${dir}: ${count} файлов`);
-    });
-    break;
-  }
-
-  case 'help':
-  default:
-    console.log(`Доступные команды STUDIO OS:
-  \x1b[33mstudio new <name> [archetype]\x1b[0m   - Создать проект со встроенными 9 системами
-  \x1b[33mstudio harvest <block> [cat]\x1b[0m    - Сохранить удачный блок в библиотеку студии
-  \x1b[33mstudio audit\x1b[0m                    - Прогнать аудит всех стандартов качества
-  \x1b[33mstudio vault\x1b[0m                    - Показать статус загруженных ассетов
-  \x1b[33mnpm run dev\x1b[0m                     - Запустить интерактивный сайт-шоукейс студии
-`);
-    break;
 }
+
+main().catch((err) => {
+  console.error(`\n${color.red}${color.bold}✗ ${err.message}${color.reset}\n`);
+  process.exit(1);
+});

@@ -17,18 +17,67 @@
   --touch-target-comfortable: 48px;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+}
+
+/* max-width: 100% вешаем на медиа и контейнентые блоки, а не на *:
+   на * это ломает таблицы, grid-колонки с min-content и абсолютно спозиционированные плашки. */
+img,
+svg,
+video,
+canvas,
+picture,
+iframe,
+pre,
+table {
   max-width: 100%;
 }
 
-html, body {
-  overflow-x: hidden;
+html,
+body {
   width: 100%;
+  overflow-x: clip; /* clip не создаёт scroll container — в отличие от hidden */
+  overscroll-behavior-x: none;
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
+
+/* Длинные слова (артикулы, URL, VIN) не растягивают вьюпорт */
+p,
+li,
+td,
+th,
+figcaption,
+a {
+  overflow-wrap: anywhere;
+}
+
+/* Запрет горизонтального скролла на 320-428px блокирует билд:
+   измерение — HorizontalScrollDetector, причины — ViewportMatrix.auditStylesheet */
 
 /* Защита от автозума в iOS Safari при фокусе на инпуты */
 input, select, textarea {
   font-size: max(16px, 1rem);
+  min-height: var(--touch-target-min);
+}
+
+/* Таблицы характеристик — частый источник переполнения: им нужен контейнер со скроллом */
+.data-table-wrap {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,6 +1,6 @@
 {
   "name": "studio-os",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Meta-system, Living Component Library, and Interactive Showcase Portal for Next-Gen Web Studio",
   "private": true,
   "type": "module",
@@ -19,7 +19,12 @@
     "studio:new": "node core-engine/bin/studio.js new",
     "studio:harvest": "node core-engine/bin/studio.js harvest",
     "studio:audit": "node core-engine/bin/studio.js audit",
-    "test": "vitest run"
+    "test": "node test-verification.mjs",
+    "verify": "node test-verification.mjs",
+    "smoke": "npm run build --workspace=projects/client-vylet && node projects/client-vylet/scripts/smoke.mjs",
+    "audit": "node core-engine/bin/studio.js audit",
+    "vault": "node core-engine/bin/studio.js vault",
+    "tokens": "node core-engine/bin/studio.js tokens"
   },
   "keywords": [
     "web-studio",
@@ -31,5 +36,9 @@
     "fluid-responsive"
   ],
   "author": "STUDIO OS Core Team",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "jsdom": "^25.0.1",
+    "jszip": "^3.10.1"
+  }
 }
