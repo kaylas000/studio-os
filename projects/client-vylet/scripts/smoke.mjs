@@ -102,6 +102,8 @@ const checks = [
   ['форма заявки', Boolean(doc.querySelector('#order form'))],
   ['подвал с дисклеймером', /публичн[\p{L}]*\s+оферт[\p{L}]*/u.test(footerText), `нашли в подвале: «${footerText.slice(-120)}»`],
   ['touch-target у кнопки', Boolean(doc.querySelector('.btn'))],
+  ['число парка в кикере = сумма catalog.ts', /\d+ единиц[аы]?\s+в\s+парке/.test(doc.querySelector('.hero__kicker, .kicker')?.textContent ?? '')],
+  ['строка ISUZU в таблице парка', /ISUZU ELF/.test(doc.getElementById('fleet')?.textContent ?? '')],
   ['JSON-LD в разметке', /application\/ld\+json/.test(doc.documentElement.innerHTML)]
 ];
 

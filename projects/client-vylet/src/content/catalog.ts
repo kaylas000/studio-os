@@ -40,6 +40,7 @@ export interface Unit {
 
 export const FLEET: Unit[] = [
   { id: 'agp-12', category: 'aerial', model: 'АГП-12.02 на ГАЗон Next', maker: 'Клинцы', year: 2021, reach: 12, capacity: 0.3, shift: 13200, extraHour: 1150, minOrder: 1, hours: 1840, outreach: 'Вылет люльки 5,4 м', ground: 'Аутригеры: 4,2 × 4,8 м', crew: 1, photo: 'aerial-12', available: 4, total: 5 },
+  { id: 'agp-18', category: 'aerial', model: 'АГП-18 на ISUZU ELF', maker: 'Клинцы', year: 2019, reach: 18, capacity: 0.3, shift: 15400, extraHour: 1250, minOrder: 1, hours: 3120, outreach: 'Люлька 2,2 × 0,9 м, поворот 360°', ground: 'Опоры 4,0 × 4,4 м, работа с обочины', crew: 1, photo: 'aerial-18', photoRatio: '3/4', available: 2, total: 3 },
   { id: 'agp-22', category: 'aerial', model: 'АГП-22.02 на Урал 4320', maker: 'Клинцы', year: 2020, reach: 22, capacity: 0.3, shift: 16800, extraHour: 1350, minOrder: 1, hours: 2960, outreach: 'Вылет 8,1 м, люлька 2,4 м', ground: 'Полный привод, бездорожье', crew: 1, photo: 'aerial-22', available: 3, total: 4 },
   { id: 'agp-34', category: 'aerial', model: 'AeroStol 34 VR на КАМАЗ', maker: 'Аэростол', year: 2022, reach: 34, capacity: 0.4, shift: 24500, extraHour: 1800, minOrder: 1, hours: 980, outreach: 'Поворотная часть 360°', ground: 'Город, проезды 3,5 м', crew: 1, photo: 'aerial-34', available: 2, total: 2 },
   { id: 'agp-44', category: 'aerial', model: 'УМ-341 44 м на МАЗ', maker: 'Урбан', year: 2019, reach: 44, capacity: 0.25, shift: 31000, extraHour: 2200, minOrder: 1, hours: 4120, outreach: 'Вертикальный подъём 44 м', ground: 'Площадка 6 × 8 м', crew: 2, photo: 'aerial-44', available: 1, total: 2 },
@@ -52,6 +53,26 @@ export const FLEET: Unit[] = [
   { id: 'jcb-3cx', category: 'earth', model: 'JCB 3CX Backhoe', maker: 'JCB', year: 2021, reach: 5, capacity: 5, shift: 15600, extraHour: 1250, minOrder: 1, hours: 2280, outreach: 'Ковш 0,28 м³, траншея до 3,6 м', ground: 'Отсыпка, обратная засыпка', crew: 1, photo: 'excavator-jcb', available: 2, total: 3 },
   { id: 'ekb-20', category: 'earth', model: 'Komatsu PC200-8 + гидромолот', maker: 'Komatsu', year: 2019, reach: 6, capacity: 20, shift: 19400, extraHour: 1550, minOrder: 1, hours: 5120, outreach: 'Молот 1 200 Дж, рыхление', ground: 'Бетон, мёрзлый грунт, скала', crew: 1, photo: 'excavator-20', available: 2, total: 3 }
 ];
+
+/** Русские множественные формы для числовых клеймов («34 единицы», «1 240 смен»). */
+export const plural = (n: number, forms: [string, string, string]) => {
+  const mod10 = Math.abs(n) % 10;
+  const mod100 = Math.abs(n) % 100;
+  if (mod10 === 1 && mod100 !== 11) return forms[0];
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
+  return forms[2];
+};
+
+/** Сумма парка по единицам: копирайт и SEO берут число отсюда, а не пишут «34» руками. */
+export const FLEET_TOTAL = FLEET.reduce((sum, unit) => sum + unit.total, 0);
+export const FLEET_AVAILABLE = FLEET.reduce((sum, unit) => sum + unit.available, 0);
+export const fleetLabel = (withUnit = true) =>
+  `${FLEET_TOTAL} ${withUnit ? plural(FLEET_TOTAL, ['единица', 'единицы', 'единиц']) : ''}`.trim();
+
+const aerial = FLEET.filter((u) => u.category === 'aerial').map((u) => u.reach);
+const crane = FLEET.filter((u) => u.category === 'crane').map((u) => u.capacity);
+export const AERIAL_RANGE = `${Math.min(...aerial)}–${Math.max(...aerial)} м`;
+export const CRANE_RANGE = `${Math.min(...crane)}–${Math.max(...crane)} т`;
 
 export interface Extra {
   id: string;

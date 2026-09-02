@@ -3,14 +3,14 @@
 
 // Только тип: Node (gen-seo.mjs, studio audit) стирает эту строку, Vite использует её для проверки.
 import type { PageSEOContract } from '../../../../library/06-seo/seo.contracts.ts';
-import { FLEET, SERVICES_FROM, AREAS } from './catalog.ts';
+import { AERIAL_RANGE, CRANE_RANGE, FLEET, SERVICES_FROM, AREAS, SHIFTS, fleetLabel } from './catalog.ts';
 
 const BASE = 'https://vylet.example';
 
 export const pageSEO: PageSEOContract = {
   title: 'Автовышки, краны и земтехника на смену — ВЫЛЕТ, Одинцово',
   description:
-    'Парк 34 единиц в Одинцово: автовышки 12–44 м, автокраны 16–100 т, манипуляторы, экскаваторы с молотом. Подача от 90 минут, смена 11 ч, наряд-допуск готовим сами.',
+    `Парк ${fleetLabel()} в Одинцово: автовышки ${AERIAL_RANGE}, автокраны ${CRANE_RANGE}, манипуляторы, экскаваторы с молотом. Подача от 90 минут, смена ${SHIFTS.hours} ч, наряд-допуск готовим сами.`,
   canonical: `${BASE}/`,
   robots: 'index, follow, max-image-preview:large',
   lang: 'ru-RU',
@@ -23,7 +23,7 @@ export const pageSEO: PageSEOContract = {
   ],
   openGraph: {
     title: 'ВЫЛЕТ · спецтехника на смену',
-    description: '34 единицы в Одинцово. Подача от 90 минут.',
+    description: `${fleetLabel()} в Одинцово. Подача от 90 минут.`,
     type: 'website',
     image: { url: `${BASE}/og.jpg`, width: 1200, height: 630, alt: 'Автовышка АГП-22.02 на объекте в Одинцово' },
     locale: 'ru_RU'
