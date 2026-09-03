@@ -107,6 +107,9 @@ export const shiftFromCategory = (c: Category) => Math.min(...FLEET.filter((u) =
 
 export const SHIFTS = { hours: 11, graceHours: 2, overtimeRate: 'по прайсу часа' };
 
+/** Диспетчерские константы: их называют в письмах и в заявке, поэтому они тоже в данных. */
+export const DISPATCH = { etaMinutes: 90, reserveMinutes: 40, bookingLeadHours: 2 };
+
 export const AREAS = [
   { name: 'Одинцово', radius: 12, eta: 'от 90 мин', note: 'база: Транспортный пр-д, 4' },
   { name: 'Кубинка · Звенигород', radius: 34, eta: 'от 3 ч', note: 'выезд по трассе А-100' },

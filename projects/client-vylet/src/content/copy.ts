@@ -3,8 +3,11 @@
 
 import {
   AERIAL_RANGE,
+  AREAS,
   CRANE_RANGE,
+  DISPATCH,
   EARTH_RANGE,
+  EXTRAS,
   FLEET,
   FLEET_AVAILABLE,
   FLEET_TOTAL,
@@ -26,7 +29,7 @@ export const HERO = {
   ctaSecondary: 'Смотреть парк',
   stats: [
     { value: FLEET_TOTAL, suffix: '', label: `${plural(FLEET_TOTAL, ['единица в', 'единицы в', 'единиц в'])} собственном парке`, note: `свободно ${FLEET_AVAILABLE} прямо сейчас, резерв на ночь` },
-    { value: 90, suffix: ' мин', label: 'подача в Одинцово', note: 'по МО от 3 ч, трек с точностью 15 м' },
+    { value: DISPATCH.etaMinutes, suffix: ' мин', label: 'подача в Одинцово', note: 'по МО от 3 ч, трек с точностью 15 м' },
     { value: 1240, suffix: '', label: 'смен закрыто за 2025 год', note: 'простой сверх 2 ч оплачиваем сами' }
   ]
 };
@@ -291,16 +294,24 @@ export const FOOTER = {
   dataNotice: 'Модели, наработка и цены — черновые данные: замените в src/content/catalog.ts.'
 };
 
-export const TICKER = [
-  'АГП-16 компактная · проезд 2,8 м',
-  'АГП 70 м · 1 единица, верхняя граница',
-  'Мини-экскаватор 2,8 т · заезд в ворота 2 м',
-  'АГП-22.02 · свободен с 06:00',
-  'КС-4572А 25 т · занят до 18:00',
-  'Hiab 032 · 5 единиц на площадке',
-  'Komatsu PC200 + молот · окно на ночь',
-  'МТЗ-82.1 · планировка, свободно 3',
-  'АГП-44 · 1 единица, резерв 40 мин'
-];
+const nightExtra = EXTRAS.find((e) => e.id === 'night');
+const compact = FLEET.find((u) => u.minHours);
+
+/**
+ * Бегущая строка собирается из каталога. Специально без «занят до 18:00» и
+ * «свободен с 06:00»: диспетчерской сводки в статике нет, а выдуманный статус
+ * техники — это обещание, которое никто не выполнит.
+ */
+export const TICKER: string[] = [
+  `парк ${fleetLabel()}, свободно ${FLEET_AVAILABLE}`,
+  `автовышки ${AERIAL_RANGE}`,
+  `краны ${CRANE_RANGE}`,
+  `манипуляторы ${MANIP_RANGE}, стрела ${MANIP_BOOM}`,
+  `земтехника ${EARTH_RANGE}`,
+  `смена ${SHIFTS.hours} ч${compact ? `, короткий выезд от ${compact.minHours} ч` : ''}`,
+  `подача в Одинцово от ${DISPATCH.etaMinutes} мин · плечо ${AREAS[1].radius} км`,
+  nightExtra ? `ночная смена +${Math.round(nightExtra.price * 100)} %` : 'ночные смены по брони',
+  `резерв держим ${DISPATCH.reserveMinutes} мин`
+].filter(Boolean);
 
 export const SECTION_COUNT = FLEET.length;

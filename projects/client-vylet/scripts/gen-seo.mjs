@@ -62,7 +62,38 @@ const ogUrl = String(typeof ogRaw === 'object' && ogRaw !== null ? ogRaw.url ?? 
 if (ogUrl && ogUrl.startsWith('/')) {
   const ogPath = path.join(root, 'public', ogUrl.replace(/^\//, ''));
   if (!fs.existsSync(ogPath)) {
-    console.log(`⚠ og-картинка ${ogUrl} не найдена в public/ — соберите: studio photo <файл> --slot=... --og`);
+    // Фото парка ещё не приняты. Вместо пустой превьюшки собираем техническую
+    // карточку из тех же данных, что и сайт: цифры в og не могут разойтись с
+    // разметкой, а настоящий кадр потом перезапишет этот файл (studio photo --og).
+    let built = null;
+    try {
+      const { renderTechnicalOg } = await import(pathToFileURL(path.resolve(root, '../../core-engine/lib/og.js')).href);
+      const cat = await import(pathToFileURL(path.join(root, 'src/content/catalog.ts')).href);
+      const brand = await import(pathToFileURL(path.join(root, 'src/content/brand.ts')).href);
+      const compact = cat.FLEET.find((u) => u.minHours);
+      built = await renderTechnicalOg({
+        outPath: ogPath,
+        brand: brand.brandName,
+        tagline: brand.brandTagline,
+        tokens: brand.brandTokens,
+        facts: [
+          `парк ${cat.fleetLabel()}, свободно ${cat.FLEET_AVAILABLE}`,
+          `автовышки ${cat.AERIAL_RANGE} · краны ${cat.CRANE_RANGE}`,
+          `земтехника ${cat.EARTH_RANGE} · ${cat.MANIP_RANGE}`,
+          `смена ${cat.SHIFTS.hours} ч${compact ? ` · короткая работа от ${compact.minHours} ч` : ''}`,
+          `подача от ${cat.DISPATCH.etaMinutes} мин · плечо ${cat.AREAS[1].radius} км`,
+          `резерв ${cat.DISPATCH.reserveMinutes} мин · наряд-допуск свой`
+        ],
+        note: 'схема вместо фото — studio photo <файл> --og перезапишет этот файл'
+      });
+    } catch (error) {
+      console.log(`⚠ og-картинка ${ogUrl} не найдена, и схему собрать не вышло (${error.message}) — нужен sharp: npm i`);
+    }
+    if (built) {
+      console.log(
+        `\x1b[36m✓ og-картинка ${ogUrl}: ${built.width}×${built.height}, ${built.kb} КБ — техническая карточка из данных парка${built.weight.ok ? '' : ` \x1b[33m(тяжёлая: ${built.weight.hint})`}\x1b[0m`
+      );
+    }
   } else {
     const kb = Math.round(fs.statSync(ogPath).size / 1024);
     console.log(kb > 200 ? `⚠ og-картинка ${kb} КБ — соцсети обрезают тяжёлые превью, жмите --quality 76` : `✓ og-картинка ${kb} КБ`);

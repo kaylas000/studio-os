@@ -87,6 +87,8 @@ await new Promise((r) => setTimeout(r, 900));
 
 const doc = dom.window.document;
 const servicesText = doc.getElementById('services')?.textContent ?? '';
+const tickerText = [...doc.querySelectorAll('.ticker__item')].map((n) => n.textContent).join(' · ');
+const kickerDigits = (doc.querySelector('.hero__kicker, .kicker')?.textContent ?? '').match(/(\d+)/u)?.[1] ?? '';
 const footerText = doc.querySelector('.disclaimer')?.textContent ?? doc.querySelector('footer')?.textContent ?? '';
 const checks = [
   ['#root не пустой', doc.getElementById('root')?.childElementCount > 0],
@@ -107,6 +109,8 @@ const checks = [
   ['число парка в кикере = сумма catalog.ts', /\d+ единиц[аы]?\s+в\s+парке/.test(doc.querySelector('.hero__kicker, .kicker')?.textContent ?? '')],
   ['строка ISUZU в таблице парка', /ISUZU ELF/.test(doc.getElementById('fleet')?.textContent ?? '')],
   ['JSON-LD в разметке', /application\/ld\+json/.test(doc.documentElement.innerHTML)],
+  ['тикер повторяет число парка из кикера', Boolean(kickerDigits) && tickerText.includes(`парк ${kickerDigits} единиц`)],
+  ['в тикере нет выдуманных статусов техники', !/занят до|свободен с|окно на ночь/i.test(tickerText)],
   ['пресеты времени в калькуляторе (2 ч · смена · сутки)', /минимум 2 ч/.test(doc.getElementById('calc')?.textContent ?? '') && /сутки/.test(doc.getElementById('calc')?.textContent ?? '')],
   ['JSON-LD объявляет подачу 24/7', /"opens":"00:00"/.test(html) && /"closes":"23:59"/.test(html)]
 ];

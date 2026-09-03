@@ -219,6 +219,24 @@ const waSingle = photos.planIntake({ inputs: [path.join(waDir, 'IMG-20260902-WA0
 assert(waSingle.jobs.length === 1 && waSingle.jobs[0].slot === 'aerial-16' && waSingle.jobs[0].link === 'agp-16', "22e. Одиночный файл со --slot работает как раньше");
 fs.rmSync(waDir, { recursive: true, force: true });
 
+// 23. Техническая og-карточка: превью соцсетей не зависит от того, дошли ли фото
+const og = await import('./core-engine/lib/og.js');
+const ogSvgOut = og.ogSvg({
+  brand: 'А&Б <тест>',
+  tagline: 'Автовышки · автокраны',
+  facts: ['парк 48 единиц', 'a & b', 'очень длинная строка факта, которая заведомо не влезает в колонку превью'],
+  note: 'схема вместо фото'
+});
+assert(!ogSvgOut.includes('<тест>') && ogSvgOut.includes('&lt;тест&gt;') && ogSvgOut.includes('А&amp;Б'), "23a. Кавычки и теги в тексте карточки экранируются");
+assert(ogSvgOut.includes('…'), "23b. Длинный факт подрезается по ширине колонки, а не залезает на схему");
+assert(ogSvgOut.includes('1200') && ogSvgOut.includes('630'), "23c. Размер превью 1200×630 — тот, что берут соцсети");
+const ogFile = '/tmp/og-render-test.jpg';
+const rendered = await og.renderTechnicalOg({ outPath: ogFile, brand: 'ТЕСТ', facts: ['парк 1 единица'] });
+const ogMeta = await (await import('sharp')).default(ogFile).metadata();
+assert(ogMeta.width === 1200 && ogMeta.height === 630 && ogMeta.format === 'jpeg', "23d. Рендер отдаёт валидный JPEG 1200×630");
+assert(rendered.weight.ok && rendered.kb < 220, "23e. Вес карточки в бюджете превюх (220 КБ)");
+fs.rmSync(ogFile, { force: true });
+
 console.log("\n==================================================");
 const pct = total ? Math.round((passed / total) * 100) : 0;
 console.log(`📊 ИТОГ: пройдено ${passed} из ${total} (${pct}%)`);
